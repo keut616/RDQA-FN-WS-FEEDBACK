@@ -10,6 +10,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Lao:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+<!-- ເພີ່ມ html2pdf ສຳລັບການດາວໂຫຼດ PDF ໂດຍກົງ -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <script>
 tailwind.config = {
@@ -115,6 +116,7 @@ tailwind.config = {
 </head>
 <body class="bg-background text-textMain font-sans antialiased p-4 md:p-8 transition-colors duration-300">
 
+<!-- Confirm Clear Modal -->
 <div id="confirmClearModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center transition-opacity no-print">
   <div class="bg-white p-6 md:p-8 rounded-2xl shadow-xl flex flex-col items-center gap-4 max-w-sm text-center mx-4 border border-slate-100">
     <div class="w-16 h-16 bg-red-50 text-red-500 rounded-full flex items-center justify-center text-3xl mb-2">⚠️</div>
@@ -129,49 +131,60 @@ tailwind.config = {
 
 <div class="w-full mx-auto space-y-8" id="main-container">
 
+<!-- Top Action Bar (Image Uploads, Clear Data, Save As, Lang Toggle) -->
 <div class="bg-surface p-4 md:p-5 rounded-2xl shadow-sm border border-slate-100 flex flex-col xl:flex-row items-center justify-between gap-5 no-print w-full max-w-5xl mx-auto">
   
+  <!-- Left Group: Image Upload Tools -->
   <div class="flex flex-col md:flex-row items-center gap-3 w-full xl:w-auto">
     <span class="text-slate-500 font-medium whitespace-nowrap hidden md:inline" data-i18n="toolsLbl">ເຄື່ອງມືແນບຮູບ:</span>
     
     <div class="flex flex-wrap justify-center xl:justify-start gap-2.5">
+      <!-- Upload: Recommendations -->
       <label class="cursor-pointer bg-blue-600 hover:bg-blue-700 text-white px-3 md:px-4 py-2 rounded-xl text-sm font-medium transition shadow-sm flex items-center gap-1.5 h-10">
         <span>🖼️</span> <span data-i18n="btnTopRec">ແນບຮູບ: ຄຳແນະນຳ</span>
         <input type="file" accept="image/*,application/pdf" class="hidden" onchange="handleImageUpload(event, 'rec')">
       </label>
       
+      <!-- Upload: Messages -->
       <label class="cursor-pointer bg-fuchsia-600 hover:bg-fuchsia-700 text-white px-3 md:px-4 py-2 rounded-xl text-sm font-medium transition shadow-sm flex items-center gap-1.5 h-10">
         <span>🖼️</span> <span data-i18n="btnTopMsg">ແນບຮູບ: ຝາກຄໍາເວົ້າ</span>
         <input type="file" accept="image/*,application/pdf" class="hidden" onchange="handleImageUpload(event, 'msg')">
       </label>
 
+      <!-- Upload: Custom Topic 1 (Experience) -->
       <label class="cursor-pointer bg-teal-500 hover:bg-teal-600 text-white px-3 md:px-4 py-2 rounded-xl text-sm font-medium transition shadow-sm flex items-center gap-1.5 h-10">
-        <span>🖼️</span> <span class="hidden sm:inline" data-i18n="btnTopC1">ແນບຮູບ: ປະສົບການ ການຮຽນຮູ້</span><span class="sm:hidden" data-i18n="c1DefaultTitle">ປະສົບການ ການຮຽນຮູ້</span>
-        <input type="file" accept="image/*,application/pdf" class="hidden" onchange="handleImageUpload(event, 'c1')">
+        <span>🖼️</span> <span class="hidden sm:inline" data-i18n="btnTopExp">ແນບຮູບ: ປະສົບການ ການຮຽນຮູ້</span><span class="sm:hidden" data-i18n="expDefaultTitle">ປະສົບການ ການຮຽນຮູ້</span>
+        <input type="file" accept="image/*,application/pdf" class="hidden" onchange="handleImageUpload(event, 'exp')">
       </label>
 
+      <!-- Upload: Custom Topic 2 (Impression) -->
       <label class="cursor-pointer bg-amber-500 hover:bg-amber-600 text-white px-3 md:px-4 py-2 rounded-xl text-sm font-medium transition shadow-sm flex items-center gap-1.5 h-10">
-        <span>🖼️</span> <span class="hidden sm:inline" data-i18n="btnTopC2">ແນບຮູບ: ຄວາມປະທັບໃຈ</span><span class="sm:hidden" data-i18n="c2DefaultTitle">ຄວາມປະທັບໃຈ</span>
-        <input type="file" accept="image/*,application/pdf" class="hidden" onchange="handleImageUpload(event, 'c2')">
+        <span>🖼️</span> <span class="hidden sm:inline" data-i18n="btnTopImp">ແນບຮູບ: ຄວາມປະທັບໃຈ</span><span class="sm:hidden" data-i18n="impDefaultTitle">ຄວາມປະທັບໃຈ</span>
+        <input type="file" accept="image/*,application/pdf" class="hidden" onchange="handleImageUpload(event, 'imp')">
       </label>
     </div>
   </div>
 
+  <!-- Right Group: Actions -->
   <div class="flex flex-wrap items-center justify-center gap-2.5 w-full xl:w-auto pt-4 xl:pt-0 border-t xl:border-none border-slate-100">
+    <!-- Clear Data Button -->
     <button onclick="clearAllData()" class="bg-red-50 border border-red-200 text-red-600 hover:bg-red-100 hover:border-red-300 px-3 md:px-4 py-2 rounded-xl text-sm font-medium transition shadow-sm flex items-center gap-1.5 h-10">
       <span>🗑️</span> <span class="hidden sm:inline" data-i18n="btnClear">ລຶບຂໍ້ມູນ</span>
     </button>
     
+    <!-- Save As Button -->
     <button id="btnSavePdf" onclick="exportToPDF()" class="bg-indigo-50 border border-indigo-200 text-indigo-600 hover:bg-indigo-100 hover:border-indigo-300 px-3 md:px-4 py-2 rounded-xl text-sm font-medium transition shadow-sm flex items-center gap-1.5 h-10">
       <span>💾</span> <span class="hidden sm:inline" data-i18n="btnSaveAs">ບັນທຶກເປັນ PDF</span>
     </button>
 
+    <!-- Language Toggle Button -->
     <button id="langToggleBtn" onclick="toggleLang()" class="bg-slate-50 border border-slate-200 hover:bg-slate-100 hover:border-slate-300 shadow-sm text-slate-700 px-3 md:px-4 py-2 rounded-xl text-sm font-medium transition duration-200 flex items-center gap-1.5 h-10">
       <span class="text-base">🌐</span> <span id="langBtnText">English</span>
     </button>
   </div>
 </div>
 
+<!-- Header Section -->
 <header class="text-center bg-surface p-6 md:p-8 rounded-2xl shadow-sm border border-slate-100 relative pdf-item w-full max-w-5xl mx-auto">
   <div class="flex flex-col md:flex-row items-center justify-center gap-4 mb-3">
     <div class="w-14 h-14 md:w-16 md:h-16 bg-slate-100 rounded-2xl flex items-center justify-center text-3xl shadow-inner border border-slate-200">📊</div>
@@ -182,7 +195,9 @@ tailwind.config = {
   </p>
 </header>
 
+<!-- Summary Cards (4 Columns) - Editable Numbers -->
 <div class="grid grid-cols-2 gap-3 md:gap-4 pdf-item w-full max-w-5xl mx-auto">
+  <!-- Card 1: Recommendations -->
   <div class="bg-cardBlue border border-white/10 rounded-xl p-3 md:p-4 text-white shadow-md flex flex-col justify-between transform transition hover:scale-[1.02] min-w-0">
     <div class="mb-1 relative z-10">
       <div class="flex items-start md:items-center gap-2 mb-1">
@@ -194,6 +209,7 @@ tailwind.config = {
     <div class="text-4xl sm:text-5xl font-bold self-end mt-2 drop-shadow-sm editable-number" id="totalRec" contenteditable="true" oninput="updateOverviewChart()">49</div>
   </div>
   
+  <!-- Card 2: Messages -->
   <div class="bg-cardPurple border border-white/10 rounded-xl p-3 md:p-4 text-white shadow-md flex flex-col justify-between transform transition hover:scale-[1.02] min-w-0">
     <div class="mb-1 relative z-10">
       <div class="flex items-start md:items-center gap-2 mb-1">
@@ -205,29 +221,32 @@ tailwind.config = {
     <div class="text-4xl sm:text-5xl font-bold self-end mt-2 drop-shadow-sm editable-number" id="totalMsg" contenteditable="true" oninput="updateOverviewChart()">75</div>
   </div>
 
+  <!-- Card 3: Experience -->
   <div class="bg-cardTeal border border-white/10 rounded-xl p-3 md:p-4 text-white shadow-md flex flex-col justify-between transform transition hover:scale-[1.02] min-w-0">
     <div class="mb-1 relative z-10">
       <div class="flex items-start md:items-center gap-2 mb-1">
         <div class="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-dotTeal dot-3d flex-shrink-0 mt-1 md:mt-0"></div>
-        <h2 class="text-sm md:text-base font-bold tracking-wide leading-tight break-words" data-i18n="c1DefaultTitle">ປະສົບການ ການຮຽນຮູ້</h2>
+        <h2 class="text-sm md:text-base font-bold tracking-wide leading-tight break-words" data-i18n="expDefaultTitle">ປະສົບການ ການຮຽນຮູ້</h2>
       </div>
       <p class="text-[10px] md:text-[11px] text-white/90 font-medium ml-4 md:ml-5 leading-tight" data-i18n="cardDesc">ກົດທີ່ຕົວເລກເພື່ອແກ້ໄຂ</p>
     </div>
-    <div class="text-4xl sm:text-5xl font-bold self-end mt-2 drop-shadow-sm editable-number" id="totalC1" contenteditable="true" oninput="updateOverviewChart()">57</div>
+    <div class="text-4xl sm:text-5xl font-bold self-end mt-2 drop-shadow-sm editable-number" id="totalExp" contenteditable="true" oninput="updateOverviewChart()">57</div>
   </div>
 
+  <!-- Card 4: Impression -->
   <div class="bg-cardOrange border border-white/10 rounded-xl p-3 md:p-4 text-white shadow-md flex flex-col justify-between transform transition hover:scale-[1.02] min-w-0">
     <div class="mb-1 relative z-10">
       <div class="flex items-start md:items-center gap-2 mb-1">
         <div class="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-dotOrange dot-3d flex-shrink-0 mt-1 md:mt-0"></div>
-        <h2 class="text-sm md:text-base font-bold tracking-wide leading-tight break-words" data-i18n="c2DefaultTitle">ຄວາມປະທັບໃຈ</h2>
+        <h2 class="text-sm md:text-base font-bold tracking-wide leading-tight break-words" data-i18n="impDefaultTitle">ຄວາມປະທັບໃຈ</h2>
       </div>
       <p class="text-[10px] md:text-[11px] text-white/90 font-medium ml-4 md:ml-5 leading-tight" data-i18n="cardDesc">ກົດທີ່ຕົວເລກເພື່ອແກ້ໄຂ</p>
     </div>
-    <div class="text-4xl sm:text-5xl font-bold self-end mt-2 drop-shadow-sm editable-number" id="totalC2" contenteditable="true" oninput="updateOverviewChart()">24</div>
+    <div class="text-4xl sm:text-5xl font-bold self-end mt-2 drop-shadow-sm editable-number" id="totalImp" contenteditable="true" oninput="updateOverviewChart()">24</div>
   </div>
 </div>
 
+<!-- Overview Chart Section -->
 <div class="bg-surface rounded-2xl shadow-sm p-6 md:p-8 border border-slate-100 pdf-item">
   <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center">
     <div class="lg:col-span-1 space-y-4">
@@ -238,8 +257,8 @@ tailwind.config = {
       <ul class="space-y-2 mt-4 text-sm font-medium">
         <li class="flex items-center text-cardBlue"><span class="mr-2">🔵</span> <span data-i18n="overviewLi1">ຄຳແນະນຳເພີ່ມເຕີມ</span></li>
         <li class="flex items-center text-cardPurple"><span class="mr-2">🟣</span> <span data-i18n="overviewLi2">ຝາກຄຳເວົ້າຄວາມປະທັບໃຈ</span></li>
-        <li class="flex items-center text-cardTeal"><span class="mr-2">🟢</span> <span data-i18n="c1DefaultTitle">ປະສົບການ ການຮຽນຮູ້</span></li>
-        <li class="flex items-center text-cardOrange"><span class="mr-2">🟠</span> <span data-i18n="c2DefaultTitle">ຄວາມປະທັບໃຈ</span></li>
+        <li class="flex items-center text-cardTeal"><span class="mr-2">🟢</span> <span data-i18n="expDefaultTitle">ປະສົບການ ການຮຽນຮູ້</span></li>
+        <li class="flex items-center text-cardOrange"><span class="mr-2">🟠</span> <span data-i18n="impDefaultTitle">ຄວາມປະທັບໃຈ</span></li>
       </ul>
     </div>
     <div class="lg:col-span-2">
@@ -250,6 +269,7 @@ tailwind.config = {
   </div>
 </div>
 
+<!-- Recommendations Chart Section -->
 <div class="bg-surface rounded-2xl shadow-sm p-6 md:p-8 border border-slate-100 pdf-item">
   <div class="mb-6">
     <h2 class="text-2xl font-bold text-textMain border-b-2 border-blue-500 pb-2 inline-block" data-i18n="chartRecTitle">🔵 ສະຫຼຸບ: ຄຳແນະນຳ</h2>
@@ -257,6 +277,7 @@ tailwind.config = {
   <div class="chart-container"><canvas id="recommendationsChart"></canvas></div>
 </div>
 
+<!-- Messages Chart Section -->
 <div class="bg-surface rounded-2xl shadow-sm p-6 md:p-8 border border-slate-100 pdf-item">
   <div class="mb-6">
     <h2 class="text-2xl font-bold text-textMain border-b-2 border-fuchsia-500 pb-2 inline-block" data-i18n="chartMsgTitle">🟣 ສະຫຼຸບ: ຝາກຄໍາເວົ້າ</h2>
@@ -264,26 +285,33 @@ tailwind.config = {
   <div class="chart-container"><canvas id="messagesChart"></canvas></div>
 </div>
 
+<!-- Experience Chart Section -->
 <div class="bg-surface rounded-2xl shadow-sm p-6 md:p-8 border border-slate-100 pdf-item">
   <div class="mb-6">
-    <h2 class="text-2xl font-bold text-textMain border-b-2 border-teal-500 pb-2 inline-block" data-i18n="chartC1Title">🟢 ສະຫຼຸບ: ປະສົບການ ການຮຽນຮູ້</h2>
+    <h2 class="text-2xl font-bold text-textMain border-b-2 border-teal-500 pb-2 inline-block" data-i18n="chartExpTitle">🟢 ສະຫຼຸບ: ປະສົບການ ການຮຽນຮູ້</h2>
   </div>
-  <div class="chart-container"><canvas id="c1Chart"></canvas></div>
+  <div class="chart-container"><canvas id="expChart"></canvas></div>
 </div>
 
+<!-- Impression Chart Section -->
 <div class="bg-surface rounded-2xl shadow-sm p-6 md:p-8 border border-slate-100 pdf-item">
   <div class="mb-6">
-    <h2 class="text-2xl font-bold text-textMain border-b-2 border-amber-500 pb-2 inline-block" data-i18n="chartC2Title">🟠 ສະຫຼຸບ: ຄວາມປະທັບໃຈ</h2>
+    <h2 class="text-2xl font-bold text-textMain border-b-2 border-amber-500 pb-2 inline-block" data-i18n="chartImpTitle">🟠 ສະຫຼຸບ: ຄວາມປະທັບໃຈ</h2>
   </div>
-  <div class="chart-container"><canvas id="c2Chart"></canvas></div>
+  <div class="chart-container"><canvas id="impChart"></canvas></div>
 </div>
 
+<!-- Image Appendix Section -->
 <div class="bg-surface rounded-2xl shadow-sm p-6 md:p-8 border border-slate-100 pdf-item" id="appendix-section">
   <div class="mb-6 flex flex-col xl:flex-row xl:items-start justify-between gap-4">
     <div>
       <h2 class="text-2xl font-bold text-textMain border-b-2 border-slate-300 pb-2 inline-block" data-i18n="imgSecTitle">📎 ເອກະສານຊ້ອນທ້າຍ (ຮູບພາບສະຕິກເກີ)</h2>
-      <p class="text-textMuted mt-3 text-sm" data-i18n="imgSecDesc">ພາບຕົ້ນສະບັບການຕິດສະຕິກເກີຂອງຜູ້ເຂົ້າຮ່ວມ (ສຳລັບເບິ່ງອ້າງອີງເທົ່ານັ້ນ).</p>
+      <p class="text-textMuted mt-3 text-sm" data-i18n="imgSecDesc">
+        ພາບຕົ້ນສະບັບການຕິດສະຕິກເກີຂອງຜູ້ເຂົ້າຮ່ວມ 
+        <br/><span class="text-blue-500 font-medium">(ເພື່ອໃຫ້ຮູບສະແດງອັດຕະໂນມັດ: ໃຫ້ເອົາໄຟລ໌ຮູບຂອງທ່ານມາໄວ້ໃນ Folder ດຽວກັນ ແລ້ວຕັ້ງຊື່ວ່າ img-rec.jpg, img-msg.jpg, img-exp.jpg, img-imp.jpg ຕາມລຳດັບ)</span>
+      </p>
     </div>
+    <!-- ປຸ່ມອັບໂຫຼດຮູບພາບດ້ານລຸ່ມ -->
     <div class="flex flex-wrap gap-2 min-w-[250px] xl:justify-end no-print">
       <label class="cursor-pointer bg-slate-50 text-slate-700 px-3 py-2 rounded-lg border border-slate-200 hover:bg-slate-100 hover:shadow-sm transition text-xs font-medium flex items-center justify-center gap-1">
         <span data-i18n="btnUploadRec">📷 ແນບຮູບ/PDF "ຄຳແນະນຳ"</span>
@@ -294,39 +322,43 @@ tailwind.config = {
         <input type="file" id="uploadMessage" accept="image/*,application/pdf" class="hidden">
       </label>
       <label class="cursor-pointer bg-slate-50 text-slate-700 px-3 py-2 rounded-lg border border-slate-200 hover:bg-slate-100 hover:shadow-sm transition text-xs font-medium flex items-center justify-center gap-1">
-        <span data-i18n="btnUploadC1">📷 ແນບຮູບ/PDF "ປະສົບການ ການຮຽນຮູ້"</span>
-        <input type="file" id="uploadC1" accept="image/*,application/pdf" class="hidden">
+        <span data-i18n="btnUploadExp">📷 ແນບຮູບ/PDF "ປະສົບການ ການຮຽນຮູ້"</span>
+        <input type="file" id="uploadExp" accept="image/*,application/pdf" class="hidden">
       </label>
       <label class="cursor-pointer bg-slate-50 text-slate-700 px-3 py-2 rounded-lg border border-slate-200 hover:bg-slate-100 hover:shadow-sm transition text-xs font-medium flex items-center justify-center gap-1">
-        <span data-i18n="btnUploadC2">📷 ແນບຮູບ/PDF "ຄວາມປະທັບໃຈ"</span>
-        <input type="file" id="uploadC2" accept="image/*,application/pdf" class="hidden">
+        <span data-i18n="btnUploadImp">📷 ແນບຮູບ/PDF "ຄວາມປະທັບໃຈ"</span>
+        <input type="file" id="uploadImp" accept="image/*,application/pdf" class="hidden">
       </label>
     </div>
   </div>
 
   <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mt-4">
+    <!-- Rec Img -->
     <div class="rounded-xl overflow-hidden border border-slate-200 shadow-sm bg-slate-50 flex flex-col items-center relative min-h-[250px]">
       <div class="bg-blue-100 text-blue-800 w-full text-center py-2 font-semibold text-sm z-20" data-i18n="imgTitleRec">🔵 ຄຳແນະນຳ</div>
       <div class="w-full flex-1 flex items-center justify-center p-2 relative">
-        <img id="recommendImage" src="https://via.placeholder.com/400x300/EBF8FF/2B6CB0?text=ຮູບພາບໝວດ+ຄຳແນະນຳ" onerror="this.onerror=null;" alt="ຮູບຄຳແນະນຳ" class="w-full h-auto max-h-[300px] object-contain hover:scale-105 transition-transform z-10">
+        <img id="recommendImage" src="img-rec.jpg" onerror="this.onerror=null; this.src='https://via.placeholder.com/400x300/EBF8FF/2B6CB0?text=ຮູບພາບໝວດ+ຄຳແນະນຳ';" alt="ຮູບຄຳແນະນຳ" class="w-full h-auto max-h-[300px] object-contain hover:scale-105 transition-transform z-10">
       </div>
     </div>
+    <!-- Msg Img -->
     <div class="rounded-xl overflow-hidden border border-slate-200 shadow-sm bg-slate-50 flex flex-col items-center relative min-h-[250px]">
       <div class="bg-fuchsia-100 text-fuchsia-800 w-full text-center py-2 font-semibold text-sm z-20" data-i18n="imgTitleMsg">🟣 ຝາກຄໍາເວົ້າ</div>
       <div class="w-full flex-1 flex items-center justify-center p-2 relative">
-        <img id="messageImage" src="https://via.placeholder.com/400x300/FAE8FF/A21CAF?text=ຮູບພາບໝວດ+ຝາກຄໍາເວົ້າ" onerror="this.onerror=null;" alt="ຮູບຝາກຄໍາເວົ້າ" class="w-full h-auto max-h-[300px] object-contain hover:scale-105 transition-transform z-10">
+        <img id="messageImage" src="img-msg.jpg" onerror="this.onerror=null; this.src='https://via.placeholder.com/400x300/FAE8FF/A21CAF?text=ຮູບພາບໝວດ+ຝາກຄໍາເວົ້າ';" alt="ຮູບຝາກຄໍາເວົ້າ" class="w-full h-auto max-h-[300px] object-contain hover:scale-105 transition-transform z-10">
       </div>
     </div>
+    <!-- Experience Img -->
     <div class="rounded-xl overflow-hidden border border-slate-200 shadow-sm bg-slate-50 flex flex-col items-center relative min-h-[250px]">
-      <div class="bg-teal-100 text-teal-800 w-full text-center py-2 font-semibold text-sm z-20" data-i18n="imgTitleC1">🟢 ປະສົບການ ການຮຽນຮູ້</div>
+      <div class="bg-teal-100 text-teal-800 w-full text-center py-2 font-semibold text-sm z-20" data-i18n="imgTitleExp">🟢 ປະສົບການ ການຮຽນຮູ້</div>
       <div class="w-full flex-1 flex items-center justify-center p-2 relative">
-        <img id="c1Image" src="https://via.placeholder.com/400x300/F0FDFA/0F766E?text=ຮູບພາບໝວດທີ+1" onerror="this.onerror=null;" alt="ຮູບໝວດ 1" class="w-full h-auto max-h-[300px] object-contain hover:scale-105 transition-transform z-10">
+        <img id="expImage" src="img-exp.jpg" onerror="this.onerror=null; this.src='https://via.placeholder.com/400x300/F0FDFA/0F766E?text=ຮູບພາບ+ປະສົບການການຮຽນຮູ້';" alt="ຮູບປະສົບການການຮຽນຮູ້" class="w-full h-auto max-h-[300px] object-contain hover:scale-105 transition-transform z-10">
       </div>
     </div>
+    <!-- Impression Img -->
     <div class="rounded-xl overflow-hidden border border-slate-200 shadow-sm bg-slate-50 flex flex-col items-center relative min-h-[250px]">
-      <div class="bg-amber-100 text-amber-800 w-full text-center py-2 font-semibold text-sm z-20" data-i18n="imgTitleC2">🟠 ຄວາມປະທັບໃຈ</div>
+      <div class="bg-amber-100 text-amber-800 w-full text-center py-2 font-semibold text-sm z-20" data-i18n="imgTitleImp">🟠 ຄວາມປະທັບໃຈ</div>
       <div class="w-full flex-1 flex items-center justify-center p-2 relative">
-        <img id="c2Image" src="https://via.placeholder.com/400x300/FFFBEB/D97706?text=ຮູບພາບໝວດທີ+2" onerror="this.onerror=null;" alt="ຮູບໝວດ 2" class="w-full h-auto max-h-[300px] object-contain hover:scale-105 transition-transform z-10">
+        <img id="impImage" src="img-imp.jpg" onerror="this.onerror=null; this.src='https://via.placeholder.com/400x300/FFFBEB/D97706?text=ຮູບພາບ+ຄວາມປະທັບໃຈ';" alt="ຮູບຄວາມປະທັບໃຈ" class="w-full h-auto max-h-[300px] object-contain hover:scale-105 transition-transform z-10">
       </div>
     </div>
   </div>
@@ -348,15 +380,15 @@ const translations = {
     toolsLbl: "ເຄື່ອງມືແນບຮູບ:",
     btnTopRec: "ແນບຮູບ: ຄຳແນະນຳ",
     btnTopMsg: "ແນບຮູບ: ຝາກຄໍາເວົ້າ",
-    btnTopC1: "ແນບຮູບ: ປະສົບການ ການຮຽນຮູ້",
-    btnTopC2: "ແນບຮູບ: ຄວາມປະທັບໃຈ",
+    btnTopExp: "ແນບຮູບ: ປະສົບການ ການຮຽນຮູ້",
+    btnTopImp: "ແນບຮູບ: ຄວາມປະທັບໃຈ",
     btnClear: "ລຶບຂໍ້ມູນ",
     btnSaveAs: "ບັນທຶກເປັນ PDF",
     confirmClear: "ທ່ານຕ້ອງການລຶບຮູບພາບ ແລະ ຣີເຊັດຕົວເລກທັງໝົດເປັນ 0 ແທ້ຫຼືບໍ່?",
     recTitle: "ຄຳແນະນຳທັງໝົດ",
     msgTitle: "ຝາກຄໍາເວົ້າທັງໝົດ",
-    c1DefaultTitle: "ປະສົບການ ການຮຽນຮູ້",
-    c2DefaultTitle: "ຄວາມປະທັບໃຈ",
+    expDefaultTitle: "ປະສົບການ ການຮຽນຮູ້",
+    impDefaultTitle: "ຄວາມປະທັບໃຈ",
     cardDesc: "ກົດທີ່ຕົວເລກເພື່ອແກ້ໄຂ",
     overviewTitle: "ພາບລວມຄວາມຄິດເຫັນ",
     overviewDesc1: "ສະແດງສັດສ່ວນຂອງປະລິມານການໃຫ້ຄຳຄິດເຫັນໃນແຕ່ລະໝວດໝູ່ ເຊິ່ງຈະຊ່ວຍໃຫ້ເຫັນພາບລວມວ່າຜູ້ເຂົ້າຮ່ວມໃຫ້ຄວາມສົນໃຈ ຫຼື ສະແດງອອກໃນຫົວຂໍ້ໃດຫຼາຍທີ່ສຸດ.",
@@ -364,18 +396,18 @@ const translations = {
     overviewLi2: "ຝາກຄຳເວົ້າຄວາມປະທັບໃຈ",
     chartRecTitle: "🔵 ສະຫຼຸບ: ຄຳແນະນຳ",
     chartMsgTitle: "🟣 ສະຫຼຸບ: ຝາກຄໍາເວົ້າ",
-    chartC1Title: "🟢 ສະຫຼຸບ: ປະສົບການ ການຮຽນຮູ້",
-    chartC2Title: "🟠 ສະຫຼຸບ: ຄວາມປະທັບໃຈ",
+    chartExpTitle: "🟢 ສະຫຼຸບ: ປະສົບການ ການຮຽນຮູ້",
+    chartImpTitle: "🟠 ສະຫຼຸບ: ຄວາມປະທັບໃຈ",
     imgSecTitle: "📎 ເອກະສານຊ້ອນທ້າຍ (ຮູບພາບສະຕິກເກີ)",
     imgSecDesc: "ພາບຕົ້ນສະບັບການຕິດສະຕິກເກີຂອງຜູ້ເຂົ້າຮ່ວມ (ສຳລັບເບິ່ງອ້າງອີງເທົ່ານັ້ນ).",
     imgTitleRec: "🔵 ຄຳແນະນຳ",
     imgTitleMsg: "🟣 ຝາກຄໍາເວົ້າ",
-    imgTitleC1: "🟢 ປະສົບການ ການຮຽນຮູ້",
-    imgTitleC2: "🟠 ຄວາມປະທັບໃຈ",
+    imgTitleExp: "🟢 ປະສົບການ ການຮຽນຮູ້",
+    imgTitleImp: "🟠 ຄວາມປະທັບໃຈ",
     btnUploadRec: "📷 ແນບຮູບ/PDF \"ຄຳແນະນຳ\"",
     btnUploadMsg: "📷 ແນບຮູບ/PDF \"ຝາກຄໍາເວົ້າ\"",
-    btnUploadC1: "📷 ແນບຮູບ/PDF \"ປະສົບການ ການຮຽນຮູ້\"",
-    btnUploadC2: "📷 ແນບຮູບ/PDF \"ຄວາມປະທັບໃຈ\"",
+    btnUploadExp: "📷 ແນບຮູບ/PDF \"ປະສົບການ ການຮຽນຮູ້\"",
+    btnUploadImp: "📷 ແນບຮູບ/PDF \"ຄວາມປະທັບໃຈ\"",
     btnCancel: "ຍົກເລີກ",
     btnConfirm: "ຢືນຢັນລຶບ",
     footerText: "ບົດສະຫຼຸບຜົນການສຳຫຼວດຫຼັງການຝຶກອົບຮົມ (RDQA Workshop Feedback Dashboard).",
@@ -395,13 +427,13 @@ const translations = {
       'ສະຖານທີ່ ແລະ ອາຫານດີຫຼາຍ',
       'ຈະນຳເອົາບົດຮຽນໄປໝູນໃຊ້ແນ່ນອນ'
     ],
-    c1Labels: [
+    expLabels: [
       'ຮຽນຮູ້ການນຳໃຊ້ເຄື່ອງມືໃໝ່ໆ',
       'ເຂົ້າໃຈຂະບວນການເຮັດວຽກຫຼາຍຂຶ້ນ',
       'ແລກປ່ຽນປະສົບການກັບໝູ່ເພື່ອນ',
       'ໄດ້ຝຶກແກ້ໄຂບັນຫາຕົວຈິງ'
     ],
-    c2Labels: [
+    impLabels: [
       'ປະທັບໃຈໃນການຈັດງານ',
       'ປະທັບໃຈເນື້ອຫາບົດຮຽນ',
       'ມັກກິດຈະກຳກຸ່ມ'
@@ -415,15 +447,15 @@ const translations = {
     toolsLbl: "Image Tools:",
     btnTopRec: "Attach: Recs",
     btnTopMsg: "Attach: Msgs",
-    btnTopC1: "Attach: Learning Exp",
-    btnTopC2: "Attach: Impressions",
+    btnTopExp: "Attach: Learning Exp",
+    btnTopImp: "Attach: Impressions",
     btnClear: "Clear Data",
     btnSaveAs: "Save as PDF",
     confirmClear: "Are you sure you want to clear all images and reset numbers to 0?",
     recTitle: "Total Recommendations",
     msgTitle: "Total Messages",
-    c1DefaultTitle: "Learning Experience",
-    c2DefaultTitle: "Impressions",
+    expDefaultTitle: "Learning Experience",
+    impDefaultTitle: "Impressions",
     cardDesc: "Click number to edit",
     overviewTitle: "Feedback Overview",
     overviewDesc1: "Shows the proportion of feedback in each category, highlighting what participants engaged with the most.",
@@ -431,18 +463,18 @@ const translations = {
     overviewLi2: "Expressions of Appreciation",
     chartRecTitle: "🔵 Summary: Recommendations",
     chartMsgTitle: "🟣 Summary: Messages",
-    chartC1Title: "🟢 Summary: Learning Experience",
-    chartC2Title: "🟠 Summary: Impressions",
+    chartExpTitle: "🟢 Summary: Learning Experience",
+    chartImpTitle: "🟠 Summary: Impressions",
     imgSecTitle: "📎 Appendix (Sticky Notes Images)",
     imgSecDesc: "Original photos of the sticky notes showing feedback from participants (for reference only).",
     imgTitleRec: "🔵 Recommendations",
     imgTitleMsg: "🟣 Messages",
-    imgTitleC1: "🟢 Learning Experience",
-    imgTitleC2: "🟠 Impressions",
+    imgTitleExp: "🟢 Learning Experience",
+    imgTitleImp: "🟠 Impressions",
     btnUploadRec: "📷 Attach Image/PDF \"Recs\"",
     btnUploadMsg: "📷 Attach Image/PDF \"Msgs\"",
-    btnUploadC1: "📷 Attach Image/PDF \"Learning Exp\"",
-    btnUploadC2: "📷 Attach Image/PDF \"Impressions\"",
+    btnUploadExp: "📷 Attach Image/PDF \"Learning Exp\"",
+    btnUploadImp: "📷 Attach Image/PDF \"Impressions\"",
     btnCancel: "Cancel",
     btnConfirm: "Confirm Clear",
     footerText: "Post-Training Feedback Survey Summary (RDQA Workshop Feedback Dashboard).",
@@ -462,13 +494,13 @@ const translations = {
       'Great venue and food',
       'Will definitely apply the lessons'
     ],
-    c1Labels: [
+    expLabels: [
       'Learned to use new tools',
       'Better understanding of workflows',
       'Shared experiences with peers',
       'Practiced solving real problems'
     ],
-    c2Labels: [
+    impLabels: [
       'Impressed by the organization',
       'Impressed by the content',
       'Enjoyed group activities'
@@ -502,8 +534,8 @@ function setPreviewImage(typeId, file, dataUrl) {
   let imgId = typeId;
   if (typeId === 'rec') imgId = 'recommendImage';
   else if (typeId === 'msg') imgId = 'messageImage';
-  else if (typeId === 'c1') imgId = 'c1Image';
-  else if (typeId === 'c2') imgId = 'c2Image';
+  else if (typeId === 'exp') imgId = 'expImage';
+  else if (typeId === 'imp') imgId = 'impImage';
   
   const imgElement = document.getElementById(imgId);
   if (!imgElement) return;
@@ -551,8 +583,8 @@ function setupAppendixUpload(inputId, imageId) {
 
 setupAppendixUpload('uploadRecommend', 'recommendImage');
 setupAppendixUpload('uploadMessage', 'messageImage');
-setupAppendixUpload('uploadC1', 'c1Image');
-setupAppendixUpload('uploadC2', 'c2Image');
+setupAppendixUpload('uploadExp', 'expImage');
+setupAppendixUpload('uploadImp', 'impImage');
 
 // --- ຟັງຊັນ Clear Data (ລຶບຂໍ້ມູນກຣາບ) ---
 function clearAllData() {
@@ -567,14 +599,14 @@ function executeClearData() {
   closeClearModal();
   document.getElementById('totalRec').innerText = '0';
   document.getElementById('totalMsg').innerText = '0';
-  document.getElementById('totalC1').innerText = '0';
-  document.getElementById('totalC2').innerText = '0';
+  document.getElementById('totalExp').innerText = '0';
+  document.getElementById('totalImp').innerText = '0';
   
-  // ລຶບຮູບພາບກັບໄປເປັນຮູບ Placeholder
-  document.getElementById('recommendImage').src = "https://via.placeholder.com/400x300/EBF8FF/2B6CB0?text=ຮູບພາບໝວດ+ຄຳແນະນຳ";
-  document.getElementById('messageImage').src = "https://via.placeholder.com/400x300/FAE8FF/A21CAF?text=ຮູບພາບໝວດ+ຝາກຄໍາເວົ້າ";
-  document.getElementById('c1Image').src = "https://via.placeholder.com/400x300/F0FDFA/0F766E?text=ຮູບພາບໝວດທີ+1";
-  document.getElementById('c2Image').src = "https://via.placeholder.com/400x300/FFFBEB/D97706?text=ຮູບພາບໝວດທີ+2";
+  // ລຶບຮູບພາບກັບໄປເປັນຮູບ Local File ທີ່ກຳນົດໄວ້ ຫຼື Placeholder
+  document.getElementById('recommendImage').src = "img-rec.jpg";
+  document.getElementById('messageImage').src = "img-msg.jpg";
+  document.getElementById('expImage').src = "img-exp.jpg";
+  document.getElementById('impImage').src = "img-imp.jpg";
   
   updateOverviewChart();
 }
@@ -614,10 +646,10 @@ function exportToPDF() {
 function updateOverviewChart() {
   const rec = parseInt(document.getElementById('totalRec').innerText) || 0;
   const msg = parseInt(document.getElementById('totalMsg').innerText) || 0;
-  const c1 = parseInt(document.getElementById('totalC1').innerText) || 0;
-  const c2 = parseInt(document.getElementById('totalC2').innerText) || 0;
+  const exp = parseInt(document.getElementById('totalExp').innerText) || 0;
+  const imp = parseInt(document.getElementById('totalImp').innerText) || 0;
   
-  overviewChart.data.datasets[0].data = [rec, msg, c1, c2];
+  overviewChart.data.datasets[0].data = [rec, msg, exp, imp];
   overviewChart.update();
 }
 
@@ -661,8 +693,8 @@ Chart.register(ChartDataLabels);
 // =====================================================================
 const recData = [15, 14, 10, 6, 4];
 const msgData = [25, 20, 15, 10, 5];
-const c1Data = [20, 15, 12, 10];
-const c2Data = [10, 8, 6];
+const expData = [20, 15, 12, 10];
+const impData = [10, 8, 6];
 
 // 1. ກຣາບວົງມົນ (Overview)
 const overviewCtx = document.getElementById('overviewChart').getContext('2d');
@@ -672,15 +704,15 @@ const overviewChart = new Chart(overviewCtx, {
     labels: [
       translations[currentLang].overviewBaseLabels[0],
       translations[currentLang].overviewBaseLabels[1],
-      `${translations[currentLang].c1DefaultTitle} (🟢)`,
-      `${translations[currentLang].c2DefaultTitle} (🟠)`
+      `${translations[currentLang].expDefaultTitle} (🟢)`,
+      `${translations[currentLang].impDefaultTitle} (🟠)`
     ],
     datasets: [{
       data: [
         parseInt(document.getElementById('totalRec').innerText) || 49, 
         parseInt(document.getElementById('totalMsg').innerText) || 75, 
-        parseInt(document.getElementById('totalC1').innerText) || 57, 
-        parseInt(document.getElementById('totalC2').innerText) || 24
+        parseInt(document.getElementById('totalExp').innerText) || 57, 
+        parseInt(document.getElementById('totalImp').innerText) || 24
       ],
       backgroundColor: ['#4F8AF9', '#D04DF6', '#20BFA0', '#F4A62A'],
       borderWidth: 0,
@@ -748,8 +780,8 @@ function createBarChart(ctxId, color, dataArr, labelsArrRaw) {
 // 2-5. ກຣາບແທ່ງ (Bar Charts)
 const recChart = createBarChart('recommendationsChart', {bg: 'rgba(79, 138, 249, 0.8)', border: '#4F8AF9'}, recData, translations[currentLang].recLabels);
 const msgChart = createBarChart('messagesChart', {bg: 'rgba(208, 77, 246, 0.8)', border: '#D04DF6'}, msgData, translations[currentLang].msgLabels);
-const c1Chart = createBarChart('c1Chart', {bg: 'rgba(32, 191, 160, 0.8)', border: '#20BFA0'}, c1Data, translations[currentLang].c1Labels);
-const c2Chart = createBarChart('c2Chart', {bg: 'rgba(244, 166, 42, 0.8)', border: '#F4A62A'}, c2Data, translations[currentLang].c2Labels);
+const expChart = createBarChart('expChart', {bg: 'rgba(32, 191, 160, 0.8)', border: '#20BFA0'}, expData, translations[currentLang].expLabels);
+const impChart = createBarChart('impChart', {bg: 'rgba(244, 166, 42, 0.8)', border: '#F4A62A'}, impData, translations[currentLang].impLabels);
 
 // Change msgChart to horizontal bar
 msgChart.config.options.indexAxis = 'y';
@@ -761,8 +793,8 @@ msgChart.update();
 
 // --- Function to update chart labels when language changes ---
 function updateChartsLanguage() {
-  const t1 = translations[currentLang].c1DefaultTitle;
-  const t2 = translations[currentLang].c2DefaultTitle;
+  const t1 = translations[currentLang].expDefaultTitle;
+  const t2 = translations[currentLang].impDefaultTitle;
   
   overviewChart.data.labels = [
     translations[currentLang].overviewBaseLabels[0],
@@ -780,13 +812,13 @@ function updateChartsLanguage() {
   msgChart.data.datasets[0].label = translations[currentLang].chartYAxis;
   msgChart.update();
 
-  c1Chart.data.labels = translations[currentLang].c1Labels.map(wrapLabel);
-  c1Chart.data.datasets[0].label = translations[currentLang].chartYAxis;
-  c1Chart.update();
+  expChart.data.labels = translations[currentLang].expLabels.map(wrapLabel);
+  expChart.data.datasets[0].label = translations[currentLang].chartYAxis;
+  expChart.update();
 
-  c2Chart.data.labels = translations[currentLang].c2Labels.map(wrapLabel);
-  c2Chart.data.datasets[0].label = translations[currentLang].chartYAxis;
-  c2Chart.update();
+  impChart.data.labels = translations[currentLang].impLabels.map(wrapLabel);
+  impChart.data.datasets[0].label = translations[currentLang].chartYAxis;
+  impChart.update();
 }
 
 // Initial Sync
