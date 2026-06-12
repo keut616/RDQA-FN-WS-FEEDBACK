@@ -112,6 +112,27 @@ tailwind.config = {
   break-inside: avoid !important;
   margin-bottom: 24px !important;
 }
+
+/* Chat Input Styling */
+#chatInput::placeholder {
+  color: #94A3B8;
+}
+/* Loading Dots Animation */
+.typing-dot {
+  animation: typing 1.4s infinite ease-in-out both;
+  height: 6px;
+  width: 6px;
+  border-radius: 50%;
+  background-color: #64748b;
+  display: inline-block;
+  margin: 0 2px;
+}
+.typing-dot:nth-child(1) { animation-delay: -0.32s; }
+.typing-dot:nth-child(2) { animation-delay: -0.16s; }
+@keyframes typing {
+  0%, 80%, 100% { transform: scale(0); opacity: 0.5; }
+  40% { transform: scale(1); opacity: 1; }
+}
 </style>
 </head>
 <body class="bg-background text-textMain font-sans antialiased p-4 md:p-8 transition-colors duration-300">
@@ -247,7 +268,7 @@ tailwind.config = {
 </div>
 
 <!-- Overview Chart Section -->
-<div class="bg-surface rounded-2xl shadow-sm p-6 md:p-8 border border-slate-100 pdf-item">
+<div class="bg-surface rounded-2xl shadow-sm p-6 md:p-8 border border-slate-100 pdf-item w-full max-w-5xl mx-auto">
   <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center">
     <div class="lg:col-span-1 space-y-4">
       <h2 class="text-2xl font-bold text-textMain border-b-2 border-blue-500 pb-2 inline-block" data-i18n="overviewTitle">ພາບລວມຄວາມຄິດເຫັນ</h2>
@@ -270,7 +291,7 @@ tailwind.config = {
 </div>
 
 <!-- Recommendations Chart Section -->
-<div class="bg-surface rounded-2xl shadow-sm p-6 md:p-8 border border-slate-100 pdf-item">
+<div class="bg-surface rounded-2xl shadow-sm p-6 md:p-8 border border-slate-100 pdf-item w-full max-w-5xl mx-auto">
   <div class="mb-6">
     <h2 class="text-2xl font-bold text-textMain border-b-2 border-blue-500 pb-2 inline-block" data-i18n="chartRecTitle">🔵 ສະຫຼຸບ: ຄຳແນະນຳ</h2>
   </div>
@@ -278,7 +299,7 @@ tailwind.config = {
 </div>
 
 <!-- Messages Chart Section -->
-<div class="bg-surface rounded-2xl shadow-sm p-6 md:p-8 border border-slate-100 pdf-item">
+<div class="bg-surface rounded-2xl shadow-sm p-6 md:p-8 border border-slate-100 pdf-item w-full max-w-5xl mx-auto">
   <div class="mb-6">
     <h2 class="text-2xl font-bold text-textMain border-b-2 border-fuchsia-500 pb-2 inline-block" data-i18n="chartMsgTitle">🟣 ສະຫຼຸບ: ຝາກຄໍາເວົ້າ</h2>
   </div>
@@ -286,7 +307,7 @@ tailwind.config = {
 </div>
 
 <!-- Experience Chart Section -->
-<div class="bg-surface rounded-2xl shadow-sm p-6 md:p-8 border border-slate-100 pdf-item">
+<div class="bg-surface rounded-2xl shadow-sm p-6 md:p-8 border border-slate-100 pdf-item w-full max-w-5xl mx-auto">
   <div class="mb-6">
     <h2 class="text-2xl font-bold text-textMain border-b-2 border-teal-500 pb-2 inline-block" data-i18n="chartExpTitle">🟢 ສະຫຼຸບ: ປະສົບການ ການຮຽນຮູ້</h2>
   </div>
@@ -294,7 +315,7 @@ tailwind.config = {
 </div>
 
 <!-- Impression Chart Section -->
-<div class="bg-surface rounded-2xl shadow-sm p-6 md:p-8 border border-slate-100 pdf-item">
+<div class="bg-surface rounded-2xl shadow-sm p-6 md:p-8 border border-slate-100 pdf-item w-full max-w-5xl mx-auto">
   <div class="mb-6">
     <h2 class="text-2xl font-bold text-textMain border-b-2 border-amber-500 pb-2 inline-block" data-i18n="chartImpTitle">🟠 ສະຫຼຸບ: ຄວາມປະທັບໃຈ</h2>
   </div>
@@ -302,7 +323,7 @@ tailwind.config = {
 </div>
 
 <!-- Image Appendix Section -->
-<div class="bg-surface rounded-2xl shadow-sm p-6 md:p-8 border border-slate-100 pdf-item" id="appendix-section">
+<div class="bg-surface rounded-2xl shadow-sm p-6 md:p-8 border border-slate-100 pdf-item w-full max-w-5xl mx-auto" id="appendix-section">
   <div class="mb-6 flex flex-col xl:flex-row xl:items-start justify-between gap-4">
     <div>
       <h2 class="text-2xl font-bold text-textMain border-b-2 border-slate-300 pb-2 inline-block" data-i18n="imgSecTitle">📎 ເອກະສານຊ້ອນທ້າຍ (ຮູບພາບສະຕິກເກີ)</h2>
@@ -332,7 +353,6 @@ tailwind.config = {
     </div>
   </div>
 
-  <!-- ແກ້ໄຂຊື່ໄຟລ໌ໃຫ້ຕົງກັບ Github ຂອງລູກຄ້າ (ໂຕ E ໃຫຍ່, ໂຕ I ໃຫຍ່) -->
   <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mt-4">
     <!-- Rec Img -->
     <div class="rounded-xl overflow-hidden border border-slate-200 shadow-sm bg-slate-50 flex flex-col items-center relative min-h-[250px]">
@@ -362,6 +382,28 @@ tailwind.config = {
         <img id="impImage" src="./img-Imp.jpg" onerror="this.onerror=null; this.src='https://via.placeholder.com/400x300/FFFBEB/D97706?text=ຮູບພາບ+ຄວາມປະທັບໃຈ';" alt="ຮູບຄວາມປະທັບໃຈ" class="w-full h-auto max-h-[300px] object-contain hover:scale-105 transition-transform z-10">
       </div>
     </div>
+  </div>
+</div>
+
+<!-- AI Chat Section -->
+<div class="bg-surface rounded-2xl shadow-sm p-6 md:p-8 border border-slate-100 mt-8 no-print w-full max-w-5xl mx-auto" id="chat-section">
+  <div class="mb-4">
+    <h2 class="text-2xl font-bold text-textMain border-b-2 border-indigo-500 pb-2 inline-block" data-i18n="chatTitle">🤖 ສົນທະນາກັບ AI (AI Analysis)</h2>
+    <p class="text-textMuted mt-3 text-sm leading-relaxed" data-i18n="chatDesc">ພິມຄຳຖາມເພື່ອໃຫ້ AI ຊ່ວຍວິເຄາະ, ສະຫຼຸບ ຫຼື ຊອກຫາແນວໂນ້ມຈາກຂໍ້ມູນຕົວເລກສະຖິຕິທີ່ທ່ານປ້ອນໄວ້ໃນໜ້າຈໍນີ້ (ສະເພາະການໃຊ້ງານໃນ Canvas ຫຼື ຖ້າມີການເຊື່ອມຕໍ່ API).</p>
+  </div>
+  
+  <div id="chatBox" class="flex flex-col gap-4 mb-4 max-h-[400px] overflow-y-auto p-4 bg-slate-50 rounded-xl border border-slate-200">
+    <!-- Chat Welcome Message -->
+    <div class="flex flex-col gap-1 items-start">
+      <div class="bg-white border border-slate-200 text-slate-700 px-4 py-2.5 rounded-2xl rounded-tl-none shadow-sm text-sm max-w-[85%] whitespace-pre-wrap leading-relaxed" data-i18n="chatWelcome">ສະບາຍດີ! ຍິນດີຕ້ອນຮັບສູ່ລະບົບວິເຄາະ. ຂ້ອຍສາມາດອ່ານຂໍ້ມູນສະຖິຕິທີ່ຢູ່ດ້ານເທິງໄດ້. ທ່ານຕ້ອງການໃຫ້ຂ້ອຍວິເຄາະ, ປຽບທຽບ ຫຼື ສະຫຼຸບຂໍ້ມູນເຫຼົ່ານີ້ໃນມຸມມອງໃດ? ສາມາດພິມຖາມມາໄດ້ເລີຍ! 💬</div>
+    </div>
+  </div>
+  
+  <div class="flex flex-col sm:flex-row gap-2">
+    <input type="text" id="chatInput" class="flex-1 bg-white border border-slate-300 text-slate-700 px-4 py-3 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm" placeholder="ພິມຄຳຖາມ ຫຼື ຄຳສັ່ງຂອງທ່ານ..." onkeypress="if(event.key === 'Enter') sendChatMessage()">
+    <button onclick="sendChatMessage()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-xl text-sm font-medium transition shadow-sm flex items-center justify-center gap-2">
+      <span data-i18n="btnSend">ສົ່ງຂໍ້ຄວາມ</span> <span class="text-lg">🚀</span>
+    </button>
   </div>
 </div>
 
@@ -412,6 +454,11 @@ const translations = {
     btnCancel: "ຍົກເລີກ",
     btnConfirm: "ຢືນຢັນລຶບ",
     footerText: "ບົດສະຫຼຸບຜົນການສຳຫຼວດຫຼັງການຝຶກອົບຮົມ (RDQA Workshop Feedback Dashboard).",
+    chatTitle: "🤖 ສົນທະນາກັບ AI (AI Analysis)",
+    chatDesc: "ພິມຄຳຖາມເພື່ອໃຫ້ AI ຊ່ວຍວິເຄາະ, ສະຫຼຸບ ຫຼື ຊອກຫາແນວໂນ້ມຈາກຂໍ້ມູນຕົວເລກສະຖິຕິທີ່ທ່ານປ້ອນໄວ້ໃນໜ້າຈໍນີ້ (ສະເພາະການໃຊ້ງານໃນ Canvas ຫຼື ຖ້າມີການເຊື່ອມຕໍ່ API).",
+    chatWelcome: "ສະບາຍດີ! ຍິນດີຕ້ອນຮັບສູ່ລະບົບວິເຄາະ. ຂ້ອຍສາມາດອ່ານຂໍ້ມູນສະຖິຕິທີ່ຢູ່ດ້ານເທິງໄດ້. ທ່ານຕ້ອງການໃຫ້ຂ້ອຍວິເຄາະ, ປຽບທຽບ ຫຼື ສະຫຼຸບຂໍ້ມູນເຫຼົ່ານີ້ໃນມຸມມອງໃດ? ສາມາດພິມຖາມມາໄດ້ເລີຍ! 💬",
+    btnSend: "ສົ່ງຂໍ້ຄວາມ",
+    chatInputPlaceholder: "ພິມຄຳຖາມ ຫຼື ຄຳສັ່ງຂອງທ່ານ...",
     // Chart Labels
     overviewBaseLabels: ['ຄຳແນະນຳ (🔵)', 'ຝາກຄໍາເວົ້າ (🟣)'],
     recLabels: [
@@ -479,6 +526,11 @@ const translations = {
     btnCancel: "Cancel",
     btnConfirm: "Confirm Clear",
     footerText: "Post-Training Feedback Survey Summary (RDQA Workshop Feedback Dashboard).",
+    chatTitle: "🤖 AI Analysis Chat",
+    chatDesc: "Ask the AI to analyze, summarize, or find trends based on the statistics currently displayed on this dashboard.",
+    chatWelcome: "Hello! I am ready to analyze the feedback data shown above. What kind of summary, comparison, or insight would you like me to provide? 💬",
+    btnSend: "Send",
+    chatInputPlaceholder: "Type your prompt here...",
     // Chart Labels
     overviewBaseLabels: ['Recommendations (🔵)', 'Messages (🟣)'],
     recLabels: [
@@ -525,6 +577,9 @@ function toggleLang() {
       el.innerHTML = translations[currentLang][key];
     }
   });
+  
+  // ປ່ຽນ Placeholder ສຳລັບກ່ອງແຊັດ
+  document.getElementById('chatInput').placeholder = translations[currentLang].chatInputPlaceholder;
 
   document.getElementById('pageTitle').innerText = translations[currentLang].pageTitle;
   updateChartsLanguage();
@@ -652,6 +707,126 @@ function updateOverviewChart() {
   
   overviewChart.data.datasets[0].data = [rec, msg, exp, imp];
   overviewChart.update();
+}
+
+// ==========================================
+// ລະບົບການສົນທະນາກັບ AI (Chat System)
+// ==========================================
+
+function fetchWithRetry(url, options, retries = 5) {
+  const delays = [1000, 2000, 4000, 8000, 16000];
+  return new Promise((resolve, reject) => {
+    function attempt(i) {
+      fetch(url, options)
+        .then(response => {
+          if (!response.ok) {
+            return response.text().then(errText => {
+              throw new Error(`HTTP error! status: ${response.status}, message: ${errText}`);
+            });
+          }
+          return response.json();
+        })
+        .then(resolve)
+        .catch(error => {
+          if (i === retries - 1) return reject(error);
+          setTimeout(() => attempt(i + 1), delays[i]);
+        });
+    }
+    attempt(0);
+  });
+}
+
+function appendMessage(sender, text, id = null) {
+  const chatBox = document.getElementById('chatBox');
+  const msgContainer = document.createElement('div');
+  msgContainer.className = `flex flex-col gap-1 ${sender === 'user' ? 'items-end' : 'items-start'} animate-fadeIn`;
+  
+  const bubble = document.createElement('div');
+  if (sender === 'user') {
+    bubble.className = 'bg-indigo-600 text-white px-4 py-2.5 rounded-2xl rounded-tr-none shadow-sm text-sm max-w-[85%] whitespace-pre-wrap leading-relaxed';
+  } else {
+    bubble.className = 'bg-white border border-slate-200 text-slate-700 px-4 py-2.5 rounded-2xl rounded-tl-none shadow-sm text-sm max-w-[85%] whitespace-pre-wrap leading-relaxed';
+  }
+  
+  if (id) bubble.id = id;
+  
+  // ຖ້າເປັນ Loading Animation
+  if (text === 'loading') {
+    bubble.innerHTML = '<div class="flex items-center h-5"><span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span></div>';
+  } else {
+    bubble.innerText = text;
+  }
+  
+  msgContainer.appendChild(bubble);
+  chatBox.appendChild(msgContainer);
+  chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+function sendChatMessage() {
+  const inputEl = document.getElementById('chatInput');
+  const message = inputEl.value.trim();
+  if (!message) return;
+
+  // 1. ສະແດງຂໍ້ຄວາມ User
+  inputEl.value = '';
+  appendMessage('user', message);
+  
+  // 2. ສະແດງ Loading ຂອງ AI
+  const loadingId = 'ai-loading-' + Date.now();
+  appendMessage('ai', 'loading', loadingId);
+
+  // 3. ດຶງຂໍ້ມູນປັດຈຸບັນໜ້າຈໍມາສ້າງເປັນ Context ໃຫ້ AI ເຂົ້າໃຈ
+  const recCount = document.getElementById('totalRec').innerText;
+  const msgCount = document.getElementById('totalMsg').innerText;
+  const expCount = document.getElementById('totalExp').innerText;
+  const impCount = document.getElementById('totalImp').innerText;
+
+  const t = translations[currentLang];
+  
+  const systemPrompt = `You are a helpful data analyst AI. The user is asking you to analyze the "RDQA Workshop Feedback Dashboard".
+Current Dashboard Statistics:
+- ${t.recTitle}: ${recCount} notes
+- ${t.msgTitle}: ${msgCount} notes
+- ${t.expDefaultTitle}: ${expCount} notes
+- ${t.impDefaultTitle}: ${impCount} notes
+
+Please provide clear, concise, and helpful analysis, summaries, or insights based ONLY on these numbers and the user's specific request. 
+IMPORTANT: Always reply in Lao language (ພາສາລາວ) regardless of what language the prompt is in, unless explicitly requested otherwise. Use appropriate emojis to make the text engaging.`;
+
+  const apiKey = ""; // ລະບົບ Canvas ຈະຈັດການ API Key ອັດຕະໂນມັດ (ຖ້າໃຊ້ໃນ Github ຈະຂຶ້ນກັບການຕັ້ງຄ່າ API)
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+  
+  const payload = {
+    contents: [{ role: "user", parts: [{ text: message }] }],
+    systemInstruction: { parts: [{ text: systemPrompt }] }
+  };
+
+  fetchWithRetry(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  })
+  .then(res => {
+    const aiText = res.candidates?.[0]?.content?.parts?.[0]?.text;
+    const bubble = document.getElementById(loadingId);
+    if (aiText && bubble) {
+      bubble.innerText = aiText;
+    } else {
+      throw new Error("Empty response");
+    }
+  })
+  .catch(err => {
+    console.error("Chat API Error:", err);
+    const bubble = document.getElementById(loadingId);
+    if (bubble) {
+      if (err.message.includes("400") || err.message.includes("403")) {
+        bubble.innerText = currentLang === 'lo' ? "ຂໍອະໄພ, ກ່ອງສົນທະນານີ້ຕ້ອງການການເຊື່ອມຕໍ່ກັບລະບົບ (Canvas) ຫຼື ຕ້ອງການ API Key ທີ່ຖືກຕ້ອງ." : "Sorry, this chat requires Canvas environment or a valid API Key.";
+        bubble.classList.add('text-red-500');
+      } else {
+        bubble.innerText = currentLang === 'lo' ? "ເກີດຂໍ້ຜິດພາດໃນການເຊື່ອມຕໍ່ຫາ AI. ກະລຸນາລອງໃໝ່." : "Connection error. Please try again.";
+      }
+    }
+  });
 }
 
 // --- ຕັ້ງຄ່າກຣາບ ---
