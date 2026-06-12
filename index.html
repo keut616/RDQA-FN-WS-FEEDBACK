@@ -691,7 +691,7 @@ function handleAITopUpload(event, type) {
 }
 
 function analyzeBase64WithAI(type, mimeType, base64Data) {
-  const apiKey = ""; 
+  const apiKey = ""; // ປ່ອຍວ່າງໄວ້ ລະບົບຈະຈັດການໃຫ້ອັດຕະໂນມັດ
   const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
 
   let promptText = "";
