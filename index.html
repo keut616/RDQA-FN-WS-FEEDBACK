@@ -10,7 +10,6 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Lao:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
-<!-- ເພີ່ມ html2pdf ສຳລັບການດາວໂຫຼດ PDF ໂດຍກົງ -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <script>
 tailwind.config = {
@@ -24,7 +23,7 @@ tailwind.config = {
         background: '#F8FAFC',
         textMain: '#1E293B',
         textMuted: '#64748B',
-        /* Custom Colors from User Image */
+        /* Custom Colors */
         cardBlue: '#4F8AF9',
         dotBlue: '#2D60D8',
         cardPurple: '#D04DF6',
@@ -68,12 +67,32 @@ tailwind.config = {
   box-shadow: inset -1px -1px 3px rgba(0,0,0,0.3), inset 1px 1px 3px rgba(255,255,255,0.6);
 }
 
+/* ແຕ່ງກ່ອງຕົວເລກໃຫ້ສາມາດພິມແກ້ໄຂໄດ້ */
+.editable-number {
+  cursor: text;
+  outline: none;
+  padding: 2px 8px;
+  border-radius: 8px;
+  transition: background-color 0.2s, box-shadow 0.2s;
+  min-width: 40px;
+  text-align: right;
+}
+.editable-number:hover, .editable-number:focus {
+  background-color: rgba(255, 255, 255, 0.25);
+  box-shadow: 0 0 0 2px rgba(255,255,255,0.5);
+}
+
 /* --- ຕັ້ງຄ່າສຳລັບການແປງ PDF ດ້ວຍ Library html2pdf --- */
 .exporting-pdf .no-print {
   display: none !important;
 }
 .exporting-pdf {
   background-color: #F8FAFC !important;
+}
+.exporting-pdf .editable-number {
+  background-color: transparent !important;
+  box-shadow: none !important;
+  padding: 0 !important;
 }
 /* ບັງຄັບຂະໜາດໜ້າຈໍ ແລະ ໃຫ້ເນື້ອຫາຂະຫຍາຍເຕັມ 100% ປ້ອງກັນພື້ນທີ່ຫວ່າງເບື້ອງຂວາ */
 .exporting-pdf body {
@@ -96,22 +115,6 @@ tailwind.config = {
 </head>
 <body class="bg-background text-textMain font-sans antialiased p-4 md:p-8 transition-colors duration-300">
 
-<!-- Error Toast -->
-<div id="errorToast" class="fixed bottom-4 right-4 bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded-lg shadow-lg hidden transition-opacity z-50">
-  <p class="font-bold" data-i18n="errTitle">ເກີດຂໍ້ຜິດພາດ</p>
-  <p id="errorMsgText">ບໍ່ສາມາດວິເຄາະຮູບພາບໄດ້.</p>
-</div>
-
-<!-- Global Loading Overlay ສຳລັບ AI -->
-<div id="aiLoadingToast" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center transition-opacity">
-  <div class="bg-white p-6 md:p-8 rounded-2xl shadow-2xl flex flex-col items-center gap-4 max-w-sm text-center mx-4">
-    <div class="w-14 h-14 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-    <h3 class="text-xl font-bold text-slate-800" data-i18n="analyzingTitle">ກຳລັງວິເຄາະຂໍ້ມູນດ້ວຍ AI...</h3>
-    <p class="text-sm text-slate-500 leading-relaxed" data-i18n="analyzingDesc">ກະລຸນາລໍຖ້າຈັກໜ່ອຍ, ລະບົບກຳລັງອ່ານສະຕິກເກີ ແລະ ຈັດໝວດໝູ່ອັດຕະໂນມັດ.</p>
-  </div>
-</div>
-
-<!-- Confirm Clear Modal -->
 <div id="confirmClearModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center transition-opacity no-print">
   <div class="bg-white p-6 md:p-8 rounded-2xl shadow-xl flex flex-col items-center gap-4 max-w-sm text-center mx-4 border border-slate-100">
     <div class="w-16 h-16 bg-red-50 text-red-500 rounded-full flex items-center justify-center text-3xl mb-2">⚠️</div>
@@ -126,122 +129,105 @@ tailwind.config = {
 
 <div class="w-full mx-auto space-y-8" id="main-container">
 
-<!-- Top Action Bar (AI Uploads, Clear Data, Save As, Lang Toggle) -->
 <div class="bg-surface p-4 md:p-5 rounded-2xl shadow-sm border border-slate-100 flex flex-col xl:flex-row items-center justify-between gap-5 no-print w-full max-w-5xl mx-auto">
   
-  <!-- Left Group: AI Tools -->
   <div class="flex flex-col md:flex-row items-center gap-3 w-full xl:w-auto">
-    <span class="text-slate-500 font-medium whitespace-nowrap hidden md:inline" data-i18n="aiToolsLbl">ເຄື່ອງມື AI:</span>
+    <span class="text-slate-500 font-medium whitespace-nowrap hidden md:inline" data-i18n="toolsLbl">ເຄື່ອງມືແນບຮູບ:</span>
     
     <div class="flex flex-wrap justify-center xl:justify-start gap-2.5">
-      <!-- AI Upload: Recommendations -->
       <label class="cursor-pointer bg-blue-600 hover:bg-blue-700 text-white px-3 md:px-4 py-2 rounded-xl text-sm font-medium transition shadow-sm flex items-center gap-1.5 h-10">
-        <span>✨</span> <span data-i18n="btnAITopRec">ວິເຄາະ: ຄຳແນະນຳ</span>
-        <input type="file" accept="image/*,application/pdf" class="hidden" onchange="handleAITopUpload(event, 'rec')">
+        <span>🖼️</span> <span data-i18n="btnTopRec">ແນບຮູບ: ຄຳແນະນຳ</span>
+        <input type="file" accept="image/*,application/pdf" class="hidden" onchange="handleImageUpload(event, 'rec')">
       </label>
       
-      <!-- AI Upload: Messages -->
       <label class="cursor-pointer bg-fuchsia-600 hover:bg-fuchsia-700 text-white px-3 md:px-4 py-2 rounded-xl text-sm font-medium transition shadow-sm flex items-center gap-1.5 h-10">
-        <span>✨</span> <span data-i18n="btnAITopMsg">ວິເຄາະ: ຝາກຄໍາເວົ້າ</span>
-        <input type="file" accept="image/*,application/pdf" class="hidden" onchange="handleAITopUpload(event, 'msg')">
+        <span>🖼️</span> <span data-i18n="btnTopMsg">ແນບຮູບ: ຝາກຄໍາເວົ້າ</span>
+        <input type="file" accept="image/*,application/pdf" class="hidden" onchange="handleImageUpload(event, 'msg')">
       </label>
 
-      <!-- AI Upload: Custom Topic 1 -->
       <label class="cursor-pointer bg-teal-500 hover:bg-teal-600 text-white px-3 md:px-4 py-2 rounded-xl text-sm font-medium transition shadow-sm flex items-center gap-1.5 h-10">
-        <span>✨</span> <span class="hidden sm:inline" data-i18n="btnAITopC1">ວິເຄາະ: ປະສົບການ ການຮຽນຮູ້</span><span class="sm:hidden" data-i18n="c1DefaultTitle">ປະສົບການ ການຮຽນຮູ້</span>
-        <input type="file" accept="image/*,application/pdf" class="hidden" onchange="handleAITopUpload(event, 'c1')">
+        <span>🖼️</span> <span class="hidden sm:inline" data-i18n="btnTopC1">ແນບຮູບ: ປະສົບການ ການຮຽນຮູ້</span><span class="sm:hidden" data-i18n="c1DefaultTitle">ປະສົບການ ການຮຽນຮູ້</span>
+        <input type="file" accept="image/*,application/pdf" class="hidden" onchange="handleImageUpload(event, 'c1')">
       </label>
 
-      <!-- AI Upload: Custom Topic 2 -->
       <label class="cursor-pointer bg-amber-500 hover:bg-amber-600 text-white px-3 md:px-4 py-2 rounded-xl text-sm font-medium transition shadow-sm flex items-center gap-1.5 h-10">
-        <span>✨</span> <span class="hidden sm:inline" data-i18n="btnAITopC2">ວິເຄາະ: ຄວາມປະທັບໃຈ</span><span class="sm:hidden" data-i18n="c2DefaultTitle">ຄວາມປະທັບໃຈ</span>
-        <input type="file" accept="image/*,application/pdf" class="hidden" onchange="handleAITopUpload(event, 'c2')">
+        <span>🖼️</span> <span class="hidden sm:inline" data-i18n="btnTopC2">ແນບຮູບ: ຄວາມປະທັບໃຈ</span><span class="sm:hidden" data-i18n="c2DefaultTitle">ຄວາມປະທັບໃຈ</span>
+        <input type="file" accept="image/*,application/pdf" class="hidden" onchange="handleImageUpload(event, 'c2')">
       </label>
     </div>
   </div>
 
-  <!-- Right Group: Actions -->
   <div class="flex flex-wrap items-center justify-center gap-2.5 w-full xl:w-auto pt-4 xl:pt-0 border-t xl:border-none border-slate-100">
-    <!-- Clear Data Button -->
     <button onclick="clearAllData()" class="bg-red-50 border border-red-200 text-red-600 hover:bg-red-100 hover:border-red-300 px-3 md:px-4 py-2 rounded-xl text-sm font-medium transition shadow-sm flex items-center gap-1.5 h-10">
       <span>🗑️</span> <span class="hidden sm:inline" data-i18n="btnClear">ລຶບຂໍ້ມູນ</span>
     </button>
     
-    <!-- Save As Button -->
     <button id="btnSavePdf" onclick="exportToPDF()" class="bg-indigo-50 border border-indigo-200 text-indigo-600 hover:bg-indigo-100 hover:border-indigo-300 px-3 md:px-4 py-2 rounded-xl text-sm font-medium transition shadow-sm flex items-center gap-1.5 h-10">
       <span>💾</span> <span class="hidden sm:inline" data-i18n="btnSaveAs">ບັນທຶກເປັນ PDF</span>
     </button>
 
-    <!-- Language Toggle Button -->
     <button id="langToggleBtn" onclick="toggleLang()" class="bg-slate-50 border border-slate-200 hover:bg-slate-100 hover:border-slate-300 shadow-sm text-slate-700 px-3 md:px-4 py-2 rounded-xl text-sm font-medium transition duration-200 flex items-center gap-1.5 h-10">
       <span class="text-base">🌐</span> <span id="langBtnText">English</span>
     </button>
   </div>
 </div>
 
-<!-- Header Section -->
 <header class="text-center bg-surface p-6 md:p-8 rounded-2xl shadow-sm border border-slate-100 relative pdf-item w-full max-w-5xl mx-auto">
   <div class="flex flex-col md:flex-row items-center justify-center gap-4 mb-3">
     <div class="w-14 h-14 md:w-16 md:h-16 bg-slate-100 rounded-2xl flex items-center justify-center text-3xl shadow-inner border border-slate-200">📊</div>
     <h1 class="text-2xl md:text-4xl lg:text-5xl font-bold text-textMain tracking-tight" data-i18n="headerTitle">ບົດສະຫຼຸບຄຳຄິດເຫັນ ກອງປະຊຸມ RDQA</h1>
   </div>
   <p class="text-sm md:text-base text-textMuted max-w-2xl mx-auto leading-relaxed" data-i18n="headerDesc">
-    ການສັງລວມຂໍ້ມູນຈາກການຂຽນສະຕິກເກີຂອງຜູ້ເຂົ້າຮ່ວມກອງປະຊຸມ ໂດຍແບ່ງອອກເປັນຫຼາຍຫົວຂໍ້ ປະກອບມີ ຄຳແນະນຳ, ຝາກຄຳເວົ້າ ແລະ ຫົວຂໍ້ອື່ນໆຕາມທີ່ກຳນົດເອງ.
+    ການສັງລວມຂໍ້ມູນຈາກການຂຽນສະຕິກເກີຂອງຜູ້ເຂົ້າຮ່ວມກອງປະຊຸມ (ສະບັບປ້ອນຂໍ້ມູນເອງ) ໂດຍແບ່ງອອກເປັນຫຼາຍຫົວຂໍ້ ປະກອບມີ ຄຳແນະນຳ, ຝາກຄຳເວົ້າ ແລະ ອື່ນໆ.
   </p>
 </header>
 
-<!-- Summary Cards (4 Columns) - Compact Design -->
 <div class="grid grid-cols-2 gap-3 md:gap-4 pdf-item w-full max-w-5xl mx-auto">
-  <!-- Card 1: Recommendations -->
   <div class="bg-cardBlue border border-white/10 rounded-xl p-3 md:p-4 text-white shadow-md flex flex-col justify-between transform transition hover:scale-[1.02] min-w-0">
     <div class="mb-1 relative z-10">
       <div class="flex items-start md:items-center gap-2 mb-1">
         <div class="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-dotBlue dot-3d flex-shrink-0 mt-1 md:mt-0"></div>
-        <h2 class="text-sm md:text-base font-bold tracking-wide leading-tight break-words" id="cardTitleTextRec" data-i18n="recTitle">ຄຳແນະນຳທັງໝົດ</h2>
+        <h2 class="text-sm md:text-base font-bold tracking-wide leading-tight break-words" data-i18n="recTitle">ຄຳແນະນຳທັງໝົດ</h2>
       </div>
-      <p class="text-[10px] md:text-[11px] text-white/90 font-medium ml-4 md:ml-5 leading-tight" data-i18n="cardDesc">ຈຳນວນຄຳຄິດເຫັນ (ສະຕິກເກີ)</p>
+      <p class="text-[10px] md:text-[11px] text-white/90 font-medium ml-4 md:ml-5 leading-tight" data-i18n="cardDesc">ກົດທີ່ຕົວເລກເພື່ອແກ້ໄຂ</p>
     </div>
-    <div class="text-4xl sm:text-5xl font-bold self-end mt-2 drop-shadow-sm" id="totalRec">49</div>
+    <div class="text-4xl sm:text-5xl font-bold self-end mt-2 drop-shadow-sm editable-number" id="totalRec" contenteditable="true" oninput="updateOverviewChart()">49</div>
   </div>
   
-  <!-- Card 2: Messages -->
   <div class="bg-cardPurple border border-white/10 rounded-xl p-3 md:p-4 text-white shadow-md flex flex-col justify-between transform transition hover:scale-[1.02] min-w-0">
     <div class="mb-1 relative z-10">
       <div class="flex items-start md:items-center gap-2 mb-1">
         <div class="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-dotPurple dot-3d flex-shrink-0 mt-1 md:mt-0"></div>
-        <h2 class="text-sm md:text-base font-bold tracking-wide leading-tight break-words" id="cardTitleTextMsg" data-i18n="msgTitle">ຝາກຄໍາເວົ້າທັງໝົດ</h2>
+        <h2 class="text-sm md:text-base font-bold tracking-wide leading-tight break-words" data-i18n="msgTitle">ຝາກຄໍາເວົ້າທັງໝົດ</h2>
       </div>
-      <p class="text-[10px] md:text-[11px] text-white/90 font-medium ml-4 md:ml-5 leading-tight" data-i18n="cardDesc">ຈຳນວນຄຳຄິດເຫັນ (ສະຕິກເກີ)</p>
+      <p class="text-[10px] md:text-[11px] text-white/90 font-medium ml-4 md:ml-5 leading-tight" data-i18n="cardDesc">ກົດທີ່ຕົວເລກເພື່ອແກ້ໄຂ</p>
     </div>
-    <div class="text-4xl sm:text-5xl font-bold self-end mt-2 drop-shadow-sm" id="totalMsg">75</div>
+    <div class="text-4xl sm:text-5xl font-bold self-end mt-2 drop-shadow-sm editable-number" id="totalMsg" contenteditable="true" oninput="updateOverviewChart()">75</div>
   </div>
 
-  <!-- Card 3: Custom Topic 1 -->
   <div class="bg-cardTeal border border-white/10 rounded-xl p-3 md:p-4 text-white shadow-md flex flex-col justify-between transform transition hover:scale-[1.02] min-w-0">
     <div class="mb-1 relative z-10">
       <div class="flex items-start md:items-center gap-2 mb-1">
         <div class="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-dotTeal dot-3d flex-shrink-0 mt-1 md:mt-0"></div>
-        <h2 class="text-sm md:text-base font-bold tracking-wide leading-tight break-words" id="cardTitleTextC1" data-i18n="c1DefaultTitle">ປະສົບການ ການຮຽນຮູ້</h2>
+        <h2 class="text-sm md:text-base font-bold tracking-wide leading-tight break-words" data-i18n="c1DefaultTitle">ປະສົບການ ການຮຽນຮູ້</h2>
       </div>
-      <p class="text-[10px] md:text-[11px] text-white/90 font-medium ml-4 md:ml-5 leading-tight" data-i18n="cardDesc">ຈຳນວນຄຳຄິດເຫັນ (ສະຕິກເກີ)</p>
+      <p class="text-[10px] md:text-[11px] text-white/90 font-medium ml-4 md:ml-5 leading-tight" data-i18n="cardDesc">ກົດທີ່ຕົວເລກເພື່ອແກ້ໄຂ</p>
     </div>
-    <div class="text-4xl sm:text-5xl font-bold self-end mt-2 drop-shadow-sm" id="totalC1">57</div>
+    <div class="text-4xl sm:text-5xl font-bold self-end mt-2 drop-shadow-sm editable-number" id="totalC1" contenteditable="true" oninput="updateOverviewChart()">57</div>
   </div>
 
-  <!-- Card 4: Custom Topic 2 -->
   <div class="bg-cardOrange border border-white/10 rounded-xl p-3 md:p-4 text-white shadow-md flex flex-col justify-between transform transition hover:scale-[1.02] min-w-0">
     <div class="mb-1 relative z-10">
       <div class="flex items-start md:items-center gap-2 mb-1">
         <div class="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-dotOrange dot-3d flex-shrink-0 mt-1 md:mt-0"></div>
-        <h2 class="text-sm md:text-base font-bold tracking-wide leading-tight break-words" id="cardTitleTextC2" data-i18n="c2DefaultTitle">ຄວາມປະທັບໃຈ</h2>
+        <h2 class="text-sm md:text-base font-bold tracking-wide leading-tight break-words" data-i18n="c2DefaultTitle">ຄວາມປະທັບໃຈ</h2>
       </div>
-      <p class="text-[10px] md:text-[11px] text-white/90 font-medium ml-4 md:ml-5 leading-tight" data-i18n="cardDesc">ຈຳນວນຄຳຄິດເຫັນ (ສະຕິກເກີ)</p>
+      <p class="text-[10px] md:text-[11px] text-white/90 font-medium ml-4 md:ml-5 leading-tight" data-i18n="cardDesc">ກົດທີ່ຕົວເລກເພື່ອແກ້ໄຂ</p>
     </div>
-    <div class="text-4xl sm:text-5xl font-bold self-end mt-2 drop-shadow-sm" id="totalC2">24</div>
+    <div class="text-4xl sm:text-5xl font-bold self-end mt-2 drop-shadow-sm editable-number" id="totalC2" contenteditable="true" oninput="updateOverviewChart()">24</div>
   </div>
 </div>
 
-<!-- Overview Chart Section -->
 <div class="bg-surface rounded-2xl shadow-sm p-6 md:p-8 border border-slate-100 pdf-item">
   <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center">
     <div class="lg:col-span-1 space-y-4">
@@ -252,8 +238,8 @@ tailwind.config = {
       <ul class="space-y-2 mt-4 text-sm font-medium">
         <li class="flex items-center text-cardBlue"><span class="mr-2">🔵</span> <span data-i18n="overviewLi1">ຄຳແນະນຳເພີ່ມເຕີມ</span></li>
         <li class="flex items-center text-cardPurple"><span class="mr-2">🟣</span> <span data-i18n="overviewLi2">ຝາກຄຳເວົ້າຄວາມປະທັບໃຈ</span></li>
-        <li class="flex items-center text-cardTeal"><span class="mr-2">🟢</span> <span id="overviewLiC1" data-i18n="c1DefaultTitle">ປະສົບການ ການຮຽນຮູ້</span></li>
-        <li class="flex items-center text-cardOrange"><span class="mr-2">🟠</span> <span id="overviewLiC2" data-i18n="c2DefaultTitle">ຄວາມປະທັບໃຈ</span></li>
+        <li class="flex items-center text-cardTeal"><span class="mr-2">🟢</span> <span data-i18n="c1DefaultTitle">ປະສົບການ ການຮຽນຮູ້</span></li>
+        <li class="flex items-center text-cardOrange"><span class="mr-2">🟠</span> <span data-i18n="c2DefaultTitle">ຄວາມປະທັບໃຈ</span></li>
       </ul>
     </div>
     <div class="lg:col-span-2">
@@ -264,46 +250,40 @@ tailwind.config = {
   </div>
 </div>
 
-<!-- Recommendations Chart Section -->
 <div class="bg-surface rounded-2xl shadow-sm p-6 md:p-8 border border-slate-100 pdf-item">
   <div class="mb-6">
-    <h2 class="text-2xl font-bold text-textMain border-b-2 border-blue-500 pb-2 inline-block" data-i18n="chartRecTitle">🔵 ວິເຄາະ: ຄຳແນະນຳ</h2>
+    <h2 class="text-2xl font-bold text-textMain border-b-2 border-blue-500 pb-2 inline-block" data-i18n="chartRecTitle">🔵 ສະຫຼຸບ: ຄຳແນະນຳ</h2>
   </div>
   <div class="chart-container"><canvas id="recommendationsChart"></canvas></div>
 </div>
 
-<!-- Messages Chart Section -->
 <div class="bg-surface rounded-2xl shadow-sm p-6 md:p-8 border border-slate-100 pdf-item">
   <div class="mb-6">
-    <h2 class="text-2xl font-bold text-textMain border-b-2 border-fuchsia-500 pb-2 inline-block" data-i18n="chartMsgTitle">🟣 ວິເຄາະ: ຝາກຄໍາເວົ້າ</h2>
+    <h2 class="text-2xl font-bold text-textMain border-b-2 border-fuchsia-500 pb-2 inline-block" data-i18n="chartMsgTitle">🟣 ສະຫຼຸບ: ຝາກຄໍາເວົ້າ</h2>
   </div>
   <div class="chart-container"><canvas id="messagesChart"></canvas></div>
 </div>
 
-<!-- Custom 1 Chart Section -->
 <div class="bg-surface rounded-2xl shadow-sm p-6 md:p-8 border border-slate-100 pdf-item">
   <div class="mb-6">
-    <h2 class="text-2xl font-bold text-textMain border-b-2 border-teal-500 pb-2 inline-block" id="chartTitleC1" data-i18n="chartC1Title">🟢 ວິເຄາະ: ປະສົບການ ການຮຽນຮູ້</h2>
+    <h2 class="text-2xl font-bold text-textMain border-b-2 border-teal-500 pb-2 inline-block" data-i18n="chartC1Title">🟢 ສະຫຼຸບ: ປະສົບການ ການຮຽນຮູ້</h2>
   </div>
   <div class="chart-container"><canvas id="c1Chart"></canvas></div>
 </div>
 
-<!-- Custom 2 Chart Section -->
 <div class="bg-surface rounded-2xl shadow-sm p-6 md:p-8 border border-slate-100 pdf-item">
   <div class="mb-6">
-    <h2 class="text-2xl font-bold text-textMain border-b-2 border-amber-500 pb-2 inline-block" id="chartTitleC2" data-i18n="chartC2Title">🟠 ວິເຄາະ: ຄວາມປະທັບໃຈ</h2>
+    <h2 class="text-2xl font-bold text-textMain border-b-2 border-amber-500 pb-2 inline-block" data-i18n="chartC2Title">🟠 ສະຫຼຸບ: ຄວາມປະທັບໃຈ</h2>
   </div>
   <div class="chart-container"><canvas id="c2Chart"></canvas></div>
 </div>
 
-<!-- Image Appendix Section -->
-<div class="bg-surface rounded-2xl shadow-sm p-6 md:p-8 border border-slate-100 pdf-item">
+<div class="bg-surface rounded-2xl shadow-sm p-6 md:p-8 border border-slate-100 pdf-item" id="appendix-section">
   <div class="mb-6 flex flex-col xl:flex-row xl:items-start justify-between gap-4">
     <div>
       <h2 class="text-2xl font-bold text-textMain border-b-2 border-slate-300 pb-2 inline-block" data-i18n="imgSecTitle">📎 ເອກະສານຊ້ອນທ້າຍ (ຮູບພາບສະຕິກເກີ)</h2>
       <p class="text-textMuted mt-3 text-sm" data-i18n="imgSecDesc">ພາບຕົ້ນສະບັບການຕິດສະຕິກເກີຂອງຜູ້ເຂົ້າຮ່ວມ (ສຳລັບເບິ່ງອ້າງອີງເທົ່ານັ້ນ).</p>
     </div>
-    <!-- ປຸ່ມອັບໂຫຼດຮູບພາບ ສຳລັບແນບເອກະສານ -->
     <div class="flex flex-wrap gap-2 min-w-[250px] xl:justify-end no-print">
       <label class="cursor-pointer bg-slate-50 text-slate-700 px-3 py-2 rounded-lg border border-slate-200 hover:bg-slate-100 hover:shadow-sm transition text-xs font-medium flex items-center justify-center gap-1">
         <span data-i18n="btnUploadRec">📷 ແນບຮູບ/PDF "ຄຳແນະນຳ"</span>
@@ -314,47 +294,39 @@ tailwind.config = {
         <input type="file" id="uploadMessage" accept="image/*,application/pdf" class="hidden">
       </label>
       <label class="cursor-pointer bg-slate-50 text-slate-700 px-3 py-2 rounded-lg border border-slate-200 hover:bg-slate-100 hover:shadow-sm transition text-xs font-medium flex items-center justify-center gap-1">
-        <span id="btnUploadC1" data-i18n="btnUploadC1">📷 ແນບຮູບ/PDF "ປະສົບການ ການຮຽນຮູ້"</span>
+        <span data-i18n="btnUploadC1">📷 ແນບຮູບ/PDF "ປະສົບການ ການຮຽນຮູ້"</span>
         <input type="file" id="uploadC1" accept="image/*,application/pdf" class="hidden">
       </label>
       <label class="cursor-pointer bg-slate-50 text-slate-700 px-3 py-2 rounded-lg border border-slate-200 hover:bg-slate-100 hover:shadow-sm transition text-xs font-medium flex items-center justify-center gap-1">
-        <span id="btnUploadC2" data-i18n="btnUploadC2">📷 ແນບຮູບ/PDF "ຄວາມປະທັບໃຈ"</span>
+        <span data-i18n="btnUploadC2">📷 ແນບຮູບ/PDF "ຄວາມປະທັບໃຈ"</span>
         <input type="file" id="uploadC2" accept="image/*,application/pdf" class="hidden">
       </label>
     </div>
   </div>
 
   <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mt-4">
-    <!-- Rec Img -->
     <div class="rounded-xl overflow-hidden border border-slate-200 shadow-sm bg-slate-50 flex flex-col items-center relative min-h-[250px]">
       <div class="bg-blue-100 text-blue-800 w-full text-center py-2 font-semibold text-sm z-20" data-i18n="imgTitleRec">🔵 ຄຳແນະນຳ</div>
       <div class="w-full flex-1 flex items-center justify-center p-2 relative">
         <img id="recommendImage" src="https://via.placeholder.com/400x300/EBF8FF/2B6CB0?text=ຮູບພາບໝວດ+ຄຳແນະນຳ" onerror="this.onerror=null;" alt="ຮູບຄຳແນະນຳ" class="w-full h-auto max-h-[300px] object-contain hover:scale-105 transition-transform z-10">
-        <p class="absolute inset-0 flex items-center justify-center text-slate-400 text-xs z-0 pointer-events-none" data-i18n="imgLoading">ກຳລັງໂຫຼດຮູບ...</p>
       </div>
     </div>
-    <!-- Msg Img -->
     <div class="rounded-xl overflow-hidden border border-slate-200 shadow-sm bg-slate-50 flex flex-col items-center relative min-h-[250px]">
       <div class="bg-fuchsia-100 text-fuchsia-800 w-full text-center py-2 font-semibold text-sm z-20" data-i18n="imgTitleMsg">🟣 ຝາກຄໍາເວົ້າ</div>
       <div class="w-full flex-1 flex items-center justify-center p-2 relative">
         <img id="messageImage" src="https://via.placeholder.com/400x300/FAE8FF/A21CAF?text=ຮູບພາບໝວດ+ຝາກຄໍາເວົ້າ" onerror="this.onerror=null;" alt="ຮູບຝາກຄໍາເວົ້າ" class="w-full h-auto max-h-[300px] object-contain hover:scale-105 transition-transform z-10">
-        <p class="absolute inset-0 flex items-center justify-center text-slate-400 text-xs z-0 pointer-events-none" data-i18n="imgLoading">ກຳລັງໂຫຼດຮູບ...</p>
       </div>
     </div>
-    <!-- C1 Img -->
     <div class="rounded-xl overflow-hidden border border-slate-200 shadow-sm bg-slate-50 flex flex-col items-center relative min-h-[250px]">
-      <div class="bg-teal-100 text-teal-800 w-full text-center py-2 font-semibold text-sm z-20" id="imgTitleC1" data-i18n="imgTitleC1">🟢 ປະສົບການ ການຮຽນຮູ້</div>
+      <div class="bg-teal-100 text-teal-800 w-full text-center py-2 font-semibold text-sm z-20" data-i18n="imgTitleC1">🟢 ປະສົບການ ການຮຽນຮູ້</div>
       <div class="w-full flex-1 flex items-center justify-center p-2 relative">
         <img id="c1Image" src="https://via.placeholder.com/400x300/F0FDFA/0F766E?text=ຮູບພາບໝວດທີ+1" onerror="this.onerror=null;" alt="ຮູບໝວດ 1" class="w-full h-auto max-h-[300px] object-contain hover:scale-105 transition-transform z-10">
-        <p class="absolute inset-0 flex items-center justify-center text-slate-400 text-xs z-0 pointer-events-none" data-i18n="imgLoading">ກຳລັງໂຫຼດຮູບ...</p>
       </div>
     </div>
-    <!-- C2 Img -->
     <div class="rounded-xl overflow-hidden border border-slate-200 shadow-sm bg-slate-50 flex flex-col items-center relative min-h-[250px]">
-      <div class="bg-amber-100 text-amber-800 w-full text-center py-2 font-semibold text-sm z-20" id="imgTitleC2" data-i18n="imgTitleC2">🟠 ຄວາມປະທັບໃຈ</div>
+      <div class="bg-amber-100 text-amber-800 w-full text-center py-2 font-semibold text-sm z-20" data-i18n="imgTitleC2">🟠 ຄວາມປະທັບໃຈ</div>
       <div class="w-full flex-1 flex items-center justify-center p-2 relative">
         <img id="c2Image" src="https://via.placeholder.com/400x300/FFFBEB/D97706?text=ຮູບພາບໝວດທີ+2" onerror="this.onerror=null;" alt="ຮູບໝວດ 2" class="w-full h-auto max-h-[300px] object-contain hover:scale-105 transition-transform z-10">
-        <p class="absolute inset-0 flex items-center justify-center text-slate-400 text-xs z-0 pointer-events-none" data-i18n="imgLoading">ກຳລັງໂຫຼດຮູບ...</p>
       </div>
     </div>
   </div>
@@ -370,30 +342,30 @@ tailwind.config = {
 // --- i18n Translation Dictionary ---
 const translations = {
   lo: {
-    pageTitle: "ບົດລວບລວມຄຳຄິດເຫັນ: ຄຳແນະນຳ ແລະ ຝາກຄໍາເວົ້າ",
+    pageTitle: "ບົດລວບລວມຄຳຄິດເຫັນ (RDQA)",
     headerTitle: "📊 ບົດສະຫຼຸບຄຳຄິດເຫັນ ກອງປະຊຸມ RDQA",
-    headerDesc: "ການສັງລວມຂໍ້ມູນຈາກການຂຽນສະຕິກເກີຂອງຜູ້ເຂົ້າຮ່ວມກອງປະຊຸມ ໂດຍແບ່ງອອກເປັນຫຼາຍຫົວຂໍ້ ປະກອບມີ ຄຳແນະນຳ, ຝາກຄຳເວົ້າ ແລະ ຫົວຂໍ້ອື່ນໆຕາມທີ່ກຳນົດເອງ.",
-    aiToolsLbl: "ເຄື່ອງມື AI:",
-    btnAITopRec: "ວິເຄາະ: ຄຳແນະນຳ",
-    btnAITopMsg: "ວິເຄາະ: ຝາກຄໍາເວົ້າ",
-    btnAITopC1: "ວິເຄາະ: ປະສົບການ ການຮຽນຮູ້",
-    btnAITopC2: "ວິເຄາະ: ຄວາມປະທັບໃຈ",
+    headerDesc: "ການສັງລວມຂໍ້ມູນຈາກການຂຽນສະຕິກເກີຂອງຜູ້ເຂົ້າຮ່ວມກອງປະຊຸມ (ສະບັບປ້ອນຂໍ້ມູນເອງ) ໂດຍແບ່ງອອກເປັນຫຼາຍຫົວຂໍ້ ປະກອບມີ ຄຳແນະນຳ, ຝາກຄຳເວົ້າ ແລະ ອື່ນໆ.",
+    toolsLbl: "ເຄື່ອງມືແນບຮູບ:",
+    btnTopRec: "ແນບຮູບ: ຄຳແນະນຳ",
+    btnTopMsg: "ແນບຮູບ: ຝາກຄໍາເວົ້າ",
+    btnTopC1: "ແນບຮູບ: ປະສົບການ ການຮຽນຮູ້",
+    btnTopC2: "ແນບຮູບ: ຄວາມປະທັບໃຈ",
     btnClear: "ລຶບຂໍ້ມູນ",
     btnSaveAs: "ບັນທຶກເປັນ PDF",
-    confirmClear: "ທ່ານຕ້ອງການລຶບຂໍ້ມູນທັງໝົດແທ້ຫຼືບໍ່? (ກຣາບຈະຖືກຣີເຊັດເປັນ 0 ທັງໝົດ)",
+    confirmClear: "ທ່ານຕ້ອງການລຶບຮູບພາບ ແລະ ຣີເຊັດຕົວເລກທັງໝົດເປັນ 0 ແທ້ຫຼືບໍ່?",
     recTitle: "ຄຳແນະນຳທັງໝົດ",
     msgTitle: "ຝາກຄໍາເວົ້າທັງໝົດ",
     c1DefaultTitle: "ປະສົບການ ການຮຽນຮູ້",
     c2DefaultTitle: "ຄວາມປະທັບໃຈ",
-    cardDesc: "ຈຳນວນຄຳຄິດເຫັນ (ສະຕິກເກີ)",
+    cardDesc: "ກົດທີ່ຕົວເລກເພື່ອແກ້ໄຂ",
     overviewTitle: "ພາບລວມຄວາມຄິດເຫັນ",
     overviewDesc1: "ສະແດງສັດສ່ວນຂອງປະລິມານການໃຫ້ຄຳຄິດເຫັນໃນແຕ່ລະໝວດໝູ່ ເຊິ່ງຈະຊ່ວຍໃຫ້ເຫັນພາບລວມວ່າຜູ້ເຂົ້າຮ່ວມໃຫ້ຄວາມສົນໃຈ ຫຼື ສະແດງອອກໃນຫົວຂໍ້ໃດຫຼາຍທີ່ສຸດ.",
     overviewLi1: "ຄຳແນະນຳເພີ່ມເຕີມ",
     overviewLi2: "ຝາກຄຳເວົ້າຄວາມປະທັບໃຈ",
-    chartRecTitle: "🔵 ວິເຄາະ: ຄຳແນະນຳ",
-    chartMsgTitle: "🟣 ວິເຄາະ: ຝາກຄໍາເວົ້າ",
-    chartC1Title: "🟢 ວິເຄາະ: ປະສົບການ ການຮຽນຮູ້",
-    chartC2Title: "🟠 ວິເຄາະ: ຄວາມປະທັບໃຈ",
+    chartRecTitle: "🔵 ສະຫຼຸບ: ຄຳແນະນຳ",
+    chartMsgTitle: "🟣 ສະຫຼຸບ: ຝາກຄໍາເວົ້າ",
+    chartC1Title: "🟢 ສະຫຼຸບ: ປະສົບການ ການຮຽນຮູ້",
+    chartC2Title: "🟠 ສະຫຼຸບ: ຄວາມປະທັບໃຈ",
     imgSecTitle: "📎 ເອກະສານຊ້ອນທ້າຍ (ຮູບພາບສະຕິກເກີ)",
     imgSecDesc: "ພາບຕົ້ນສະບັບການຕິດສະຕິກເກີຂອງຜູ້ເຂົ້າຮ່ວມ (ສຳລັບເບິ່ງອ້າງອີງເທົ່ານັ້ນ).",
     imgTitleRec: "🔵 ຄຳແນະນຳ",
@@ -404,11 +376,6 @@ const translations = {
     btnUploadMsg: "📷 ແນບຮູບ/PDF \"ຝາກຄໍາເວົ້າ\"",
     btnUploadC1: "📷 ແນບຮູບ/PDF \"ປະສົບການ ການຮຽນຮູ້\"",
     btnUploadC2: "📷 ແນບຮູບ/PDF \"ຄວາມປະທັບໃຈ\"",
-    imgLoading: "ກຳລັງໂຫຼດຮູບ...",
-    analyzingTitle: "ກຳລັງວິເຄາະຂໍ້ມູນດ້ວຍ AI...",
-    analyzingDesc: "ກະລຸນາລໍຖ້າຈັກໜ່ອຍ, ລະບົບກຳລັງອ່ານສະຕິກເກີ ແລະ ຈັດໝວດໝູ່ອັດຕະໂນມັດ.",
-    errTitle: "ເກີດຂໍ້ຜິດພາດ",
-    errApi: "ບໍ່ສາມາດເຊື່ອມຕໍ່ກັບ AI ໄດ້ໃນຕອນນີ້. ກະລຸນາລອງໃໝ່ພາຍຫຼັງ.",
     btnCancel: "ຍົກເລີກ",
     btnConfirm: "ຢືນຢັນລຶບ",
     footerText: "ບົດສະຫຼຸບຜົນການສຳຫຼວດຫຼັງການຝຶກອົບຮົມ (RDQA Workshop Feedback Dashboard).",
@@ -428,35 +395,44 @@ const translations = {
       'ສະຖານທີ່ ແລະ ອາຫານດີຫຼາຍ',
       'ຈະນຳເອົາບົດຮຽນໄປໝູນໃຊ້ແນ່ນອນ'
     ],
-    c1Labels: [],
-    c2Labels: [],
+    c1Labels: [
+      'ຮຽນຮູ້ການນຳໃຊ້ເຄື່ອງມືໃໝ່ໆ',
+      'ເຂົ້າໃຈຂະບວນການເຮັດວຽກຫຼາຍຂຶ້ນ',
+      'ແລກປ່ຽນປະສົບການກັບໝູ່ເພື່ອນ',
+      'ໄດ້ຝຶກແກ້ໄຂບັນຫາຕົວຈິງ'
+    ],
+    c2Labels: [
+      'ປະທັບໃຈໃນການຈັດງານ',
+      'ປະທັບໃຈເນື້ອຫາບົດຮຽນ',
+      'ມັກກິດຈະກຳກຸ່ມ'
+    ],
     chartYAxis: "ຈຳນວນຄຳຄິດເຫັນ"
   },
   en: {
     pageTitle: "Feedback Summary Dashboard",
     headerTitle: "📊 RDQA Workshop Feedback Summary",
-    headerDesc: "A summary of data collected from participant sticky notes, categorized into Recommendations, Messages, and Custom Topics.",
-    aiToolsLbl: "AI Tools:",
-    btnAITopRec: "Analyze: Recs",
-    btnAITopMsg: "Analyze: Msgs",
-    btnAITopC1: "Analyze: Learning Exp",
-    btnAITopC2: "Analyze: Impressions",
+    headerDesc: "A summary of data collected from participant sticky notes. (Manual Data Entry Version)",
+    toolsLbl: "Image Tools:",
+    btnTopRec: "Attach: Recs",
+    btnTopMsg: "Attach: Msgs",
+    btnTopC1: "Attach: Learning Exp",
+    btnTopC2: "Attach: Impressions",
     btnClear: "Clear Data",
     btnSaveAs: "Save as PDF",
-    confirmClear: "Are you sure you want to clear all data? (Charts will be reset to 0)",
+    confirmClear: "Are you sure you want to clear all images and reset numbers to 0?",
     recTitle: "Total Recommendations",
     msgTitle: "Total Messages",
     c1DefaultTitle: "Learning Experience",
     c2DefaultTitle: "Impressions",
-    cardDesc: "Number of comments",
+    cardDesc: "Click number to edit",
     overviewTitle: "Feedback Overview",
     overviewDesc1: "Shows the proportion of feedback in each category, highlighting what participants engaged with the most.",
     overviewLi1: "Recommendations for Improvement",
     overviewLi2: "Expressions of Appreciation",
-    chartRecTitle: "🔵 Analysis: Recommendations",
-    chartMsgTitle: "🟣 Analysis: Messages",
-    chartC1Title: "🟢 Analysis: Learning Experience",
-    chartC2Title: "🟠 Analysis: Impressions",
+    chartRecTitle: "🔵 Summary: Recommendations",
+    chartMsgTitle: "🟣 Summary: Messages",
+    chartC1Title: "🟢 Summary: Learning Experience",
+    chartC2Title: "🟠 Summary: Impressions",
     imgSecTitle: "📎 Appendix (Sticky Notes Images)",
     imgSecDesc: "Original photos of the sticky notes showing feedback from participants (for reference only).",
     imgTitleRec: "🔵 Recommendations",
@@ -467,11 +443,6 @@ const translations = {
     btnUploadMsg: "📷 Attach Image/PDF \"Msgs\"",
     btnUploadC1: "📷 Attach Image/PDF \"Learning Exp\"",
     btnUploadC2: "📷 Attach Image/PDF \"Impressions\"",
-    imgLoading: "Loading image...",
-    analyzingTitle: "Analyzing data with AI...",
-    analyzingDesc: "Please wait a moment, the system is reading the sticky notes and categorizing them automatically.",
-    errTitle: "Error Occurred",
-    errApi: "Failed to connect to the AI. Please try again later.",
     btnCancel: "Cancel",
     btnConfirm: "Confirm Clear",
     footerText: "Post-Training Feedback Survey Summary (RDQA Workshop Feedback Dashboard).",
@@ -491,8 +462,17 @@ const translations = {
       'Great venue and food',
       'Will definitely apply the lessons'
     ],
-    c1Labels: [],
-    c2Labels: [],
+    c1Labels: [
+      'Learned to use new tools',
+      'Better understanding of workflows',
+      'Shared experiences with peers',
+      'Practiced solving real problems'
+    ],
+    c2Labels: [
+      'Impressed by the organization',
+      'Impressed by the content',
+      'Enjoyed group activities'
+    ],
     chartYAxis: "Number of comments"
   }
 };
@@ -514,19 +494,10 @@ function toggleLang() {
   });
 
   document.getElementById('pageTitle').innerText = translations[currentLang].pageTitle;
-  
   updateChartsLanguage();
 }
 
-// ຟັງຊັນສະແດງແຈ້ງເຕືອນ (Error)
-function showError(msg) {
-  const toast = document.getElementById('errorToast');
-  document.getElementById('errorMsgText').innerText = msg;
-  toast.classList.remove('hidden');
-  setTimeout(() => toast.classList.add('hidden'), 5000);
-}
-
-// ຟັງຊັນສຳລັບອັບເດດຮູບພາບສະແດງຜົນ (Preview)
+// ຟັງຊັນສຳລັບອັບເດດຮູບພາບສະແດງຜົນ
 function setPreviewImage(typeId, file, dataUrl) {
   let imgId = typeId;
   if (typeId === 'rec') imgId = 'recommendImage';
@@ -541,18 +512,31 @@ function setPreviewImage(typeId, file, dataUrl) {
     const pdfText = currentLang === 'lo' ? 'ໄຟລ໌ PDF ຖືກແນບແລ້ວ' : 'PDF File Attached';
     const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300"><rect width="100%" height="100%" fill="#F1F5F9"/><text x="50%" y="50%" font-family="sans-serif" font-size="20" font-weight="bold" fill="#64748B" text-anchor="middle" dominant-baseline="middle">${pdfText}</text></svg>`;
     imgElement.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
-    imgElement.onerror = null;
   } else {
     imgElement.src = dataUrl;
-    imgElement.onerror = null;
   }
 }
 
-// ຟັງຊັນສຳລັບຈັດການອັບໂຫຼດຮູບພາບໃນເອກະສານຊ້ອນທ້າຍ (ບໍ່ມີການວິເຄາະ AI)
+// ຟັງຊັນສຳລັບອັບໂຫຼດຮູບຈາກປຸ່ມດ້ານເທິງ
+function handleImageUpload(event, type) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const dataUrl = e.target.result;
+    setPreviewImage(type, file, dataUrl);
+    // ເລື່ອນລົງໄປໃຫ້ເຫັນຮູບທີ່ແນບ
+    document.getElementById('appendix-section').scrollIntoView({ behavior: 'smooth' });
+    if (event.target) event.target.value = ''; 
+  };
+  reader.readAsDataURL(file);
+}
+
+// ຟັງຊັນສຳລັບອັບໂຫຼດຮູບຈາກປຸ່ມດ້ານລຸ່ມ
 function setupAppendixUpload(inputId, imageId) {
   const fileInput = document.getElementById(inputId);
   if(!fileInput) return;
-  
   fileInput.addEventListener('change', function(event) {
     const file = event.target.files[0];
     if (file) {
@@ -581,26 +565,18 @@ function closeClearModal() {
 
 function executeClearData() {
   closeClearModal();
-
-  ['lo', 'en'].forEach(lang => {
-    translations[lang].recLabels = [];
-    translations[lang].msgLabels = [];
-    translations[lang].c1Labels = [];
-    translations[lang].c2Labels = [];
-  });
-
-  recChart.data.labels = []; recChart.data.datasets[0].data = []; recChart.update();
-  msgChart.data.labels = []; msgChart.data.datasets[0].data = []; msgChart.update();
-  c1Chart.data.labels = []; c1Chart.data.datasets[0].data = []; c1Chart.update();
-  c2Chart.data.labels = []; c2Chart.data.datasets[0].data = []; c2Chart.update();
-
   document.getElementById('totalRec').innerText = '0';
   document.getElementById('totalMsg').innerText = '0';
   document.getElementById('totalC1').innerText = '0';
   document.getElementById('totalC2').innerText = '0';
-
-  overviewChart.data.datasets[0].data = [0, 0, 0, 0];
-  overviewChart.update();
+  
+  // ລຶບຮູບພາບກັບໄປເປັນຮູບ Placeholder
+  document.getElementById('recommendImage').src = "https://via.placeholder.com/400x300/EBF8FF/2B6CB0?text=ຮູບພາບໝວດ+ຄຳແນະນຳ";
+  document.getElementById('messageImage').src = "https://via.placeholder.com/400x300/FAE8FF/A21CAF?text=ຮູບພາບໝວດ+ຝາກຄໍາເວົ້າ";
+  document.getElementById('c1Image').src = "https://via.placeholder.com/400x300/F0FDFA/0F766E?text=ຮູບພາບໝວດທີ+1";
+  document.getElementById('c2Image').src = "https://via.placeholder.com/400x300/FFFBEB/D97706?text=ຮູບພາບໝວດທີ+2";
+  
+  updateOverviewChart();
 }
 
 // --- ລະບົບປຸ່ມ Save As PDF ---
@@ -609,12 +585,10 @@ function exportToPDF() {
   const originalText = btn.innerHTML;
   
   btn.innerHTML = currentLang === 'lo' ? '<span>⏳ ພວມສ້າງ PDF...</span>' : '<span>⏳ Generating...</span>';
-  
   document.body.classList.add('exporting-pdf');
   
   setTimeout(() => {
     const element = document.getElementById('main-container');
-    
     const opt = {
       margin:       [5, 5, 5, 5], 
       filename:     'RDQA_Feedback_Dashboard.pdf',
@@ -631,184 +605,19 @@ function exportToPDF() {
       console.error("PDF Generation Error:", err);
       document.body.classList.remove('exporting-pdf');
       btn.innerHTML = originalText;
-      showError(currentLang === 'lo' ? 'ເກີດຂໍ້ຜິດພາດໃນການສ້າງ PDF' : 'Error generating PDF');
+      alert(currentLang === 'lo' ? 'ເກີດຂໍ້ຜິດພາດໃນການສ້າງ PDF' : 'Error generating PDF');
     });
   }, 500);
 }
 
-// --- ລະບົບ Gemini AI API ---
-// ເອົາ async/await ອອກເພື່ອແກ້ໄຂ SyntaxError
-function fetchWithRetry(url, options, retries = 5) {
-  const delays = [1000, 2000, 4000, 8000, 16000];
-  return new Promise((resolve, reject) => {
-    function attempt(i) {
-      fetch(url, options)
-        .then(response => {
-          if (!response.ok) {
-            return response.text().then(errText => {
-              throw new Error(`HTTP error! status: ${response.status}, message: ${errText}`);
-            });
-          }
-          return response.json();
-        })
-        .then(resolve)
-        .catch(error => {
-          if (i === retries - 1) return reject(error);
-          setTimeout(() => attempt(i + 1), delays[i]);
-        });
-    }
-    attempt(0);
-  });
-}
-
-function handleAITopUpload(event, type) {
-  const file = event.target.files[0];
-  if (!file) return;
-
-  document.getElementById('aiLoadingToast').classList.remove('hidden');
-
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    const dataUrl = e.target.result;
-    
-    // ອັບເດດຮູບພາບໃນກ່ອງເອກະສານຊ້ອນທ້າຍ
-    setPreviewImage(type, file, dataUrl);
-
-    const mimeType = dataUrl.split(';')[0].split(':')[1];
-    const base64Data = dataUrl.split(',')[1];
-    
-    analyzeBase64WithAI(type, mimeType, base64Data)
-      .then(() => {
-        document.getElementById('aiLoadingToast').classList.add('hidden');
-        if (event.target) event.target.value = ''; 
-      })
-      .catch(err => {
-        document.getElementById('aiLoadingToast').classList.add('hidden');
-        if (event.target) event.target.value = ''; 
-      });
-  };
-  reader.readAsDataURL(file);
-}
-
-function analyzeBase64WithAI(type, mimeType, base64Data) {
-  const apiKey = ""; // ປ່ອຍວ່າງໄວ້ ລະບົບ Canvas ຈະຈັດການໃຫ້ອັດຕະໂນມັດ
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
-
-  let promptText = "";
-
-  // ສ້າງຄຳສັ່ງ (Prompt) ແຍກກັນຕາມປະເພດຂອງປຸ່ມທີ່ກົດ
-  if (type === 'rec') {
-    if (currentLang === 'lo') {
-      promptText = "ວິເຄາະຮູບພາບ ຫຼື ໄຟລ໌ PDF sticky notes ນີ້. ໃຫ້ເນັ້ນການອ່ານ ແລະ ສະກັດເອົາສະເພາະຂໍ້ຄວາມທີ່ເປັນ 'ຄຳແນະນຳ ຫຼື ຂໍ້ສະເໜີແນະເພື່ອການປັບປຸງ'. ຈັດກຸ່ມຂໍ້ສະເໜີແນະເຫຼົ່ານັ້ນເປັນ 3-5 ໝວດໝູ່ຫຼັກ ແລະ ນັບຈຳນວນສະຕິກເກີໃນແຕ່ລະໝວດໝູ່. ສົ່ງຂໍ້ມູນກັບຄືນມາເປັນ JSON format ຕາມທີ່ກຳນົດໄວ້ ໂດຍໃຊ້ພາສາລາວ.";
-    } else {
-      promptText = "Analyze this image or PDF document of sticky notes. Extract ONLY the notes that contain 'Recommendations or Suggestions for Improvement'. Categorize them into 3 to 5 distinct categories and count the number of sticky notes in each. Return the result strictly matching the provided JSON schema.";
-    }
-  } else if (type === 'msg') {
-    if (currentLang === 'lo') {
-      promptText = "ວິເຄາະຮູບພາບ ຫຼື ໄຟລ໌ PDF sticky notes ນີ້. ໃຫ້ເນັ້ນການອ່ານ ແລະ ສະກັດເອົາສະເພາະຂໍ້ຄວາມທີ່ເປັນ 'ການຝາກຄຳເວົ້າ, ຄວາມປະທັບໃຈ, ຄຳຂອບໃຈ ຫຼື ຄວາມຮູ້ສຶກດີໆ'. ຈັດກຸ່ມຂໍ້ຄວາມເຫຼົ່ານັ້ນເປັນ 3-5 ໝວດໝູ່ຫຼັກ ແລະ ນັບຈຳນວນສະຕິກເກີໃນແຕ່ລະໝວດໝູ່. ສົ່ງຂໍ້ມູນກັບຄືນມາເປັນ JSON format ຕາມທີ່ກຳນົດໄວ້ ໂດຍໃຊ້ພາສາລາວ.";
-    } else {
-      promptText = "Analyze this image or PDF document of sticky notes. Extract ONLY the notes that contain 'Messages of Appreciation, Positive Feedback, or Thank You notes'. Categorize them into 3 to 5 distinct categories and count the number of sticky notes in each. Return the result strictly matching the provided JSON schema.";
-    }
-  } else {
-    // ສຳລັບ c1 ແລະ c2 ໃຫ້ວິເຄາະຕາມຫົວຂໍ້ຄົງທີ່
-    let customTopic = "";
-    if (type === 'c1') {
-      customTopic = translations[currentLang].c1DefaultTitle;
-    } else if (type === 'c2') {
-      customTopic = translations[currentLang].c2DefaultTitle;
-    }
-
-    if (currentLang === 'lo') {
-      promptText = `ວິເຄາະຮູບພາບ ຫຼື ໄຟລ໌ PDF sticky notes ນີ້. ໃຫ້ເນັ້ນການອ່ານ ແລະ ສະກັດເອົາສະເພາະຂໍ້ຄວາມທີ່ກ່ຽວຂ້ອງກັບຫົວຂໍ້: "${customTopic}". ຈັດກຸ່ມຂໍ້ຄວາມເຫຼົ່ານັ້ນເປັນ 3-5 ໝວດໝູ່ຫຼັກທີ່ສອດຄ່ອງກັບຫົວຂໍ້ ແລະ ນັບຈຳນວນສະຕິກເກີໃນແຕ່ລະໝວດໝູ່. ສົ່ງຂໍ້ມູນກັບຄືນມາເປັນ JSON format ຕາມທີ່ກຳນົດໄວ້ ໂດຍໃຊ້ພາສາລາວ.`;
-    } else {
-      promptText = `Analyze this image or PDF document of sticky notes. Extract ONLY the notes that are relevant to the topic: "${customTopic}". Categorize them into 3 to 5 distinct categories aligned with this topic and count the number of sticky notes in each. Return the result strictly matching the provided JSON schema.`;
-    }
-  }
-
-  const payload = {
-    contents: [{
-      role: "user",
-      parts: [
-        { text: promptText },
-        { inlineData: { mimeType: mimeType, data: base64Data } }
-      ]
-    }],
-    generationConfig: {
-      responseMimeType: "application/json",
-      responseSchema: {
-        type: "OBJECT",
-        properties: {
-          labels: { type: "ARRAY", items: { type: "STRING" } },
-          data: { type: "ARRAY", items: { type: "INTEGER" } }
-        }
-      }
-    }
-  };
-
-  return fetchWithRetry(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload)
-  }).then(result => {
-    const textResponse = result.candidates?.[0]?.content?.parts?.[0]?.text;
-    if (textResponse) {
-      let cleanText = textResponse.trim();
-      if (cleanText.startsWith('```json')) cleanText = cleanText.substring(7);
-      else if (cleanText.startsWith('```')) cleanText = cleanText.substring(3);
-      if (cleanText.endsWith('```')) cleanText = cleanText.substring(0, cleanText.length - 3);
-      cleanText = cleanText.trim();
-
-      const parsedData = JSON.parse(cleanText);
-      if (!parsedData.labels || !parsedData.data) throw new Error("Missing labels or data array");
-      
-      updateChartFromAI(type, parsedData.labels, parsedData.data);
-    } else {
-      throw new Error("Invalid response from AI");
-    }
-  }).catch(error => {
-    console.error("AI Analysis Error:", error);
-    showError(translations[currentLang].errApi);
-    throw error;
-  });
-}
-
-// ຟັງຊັນສຳລັບອັບເດດກຣາບຈາກຂໍ້ມູນທີ່ AI ສົ່ງມາ
-function updateChartFromAI(type, newLabels, newData) {
-  const sum = newData.reduce((a, b) => a + b, 0);
-
-  if (type === 'rec') {
-    translations[currentLang].recLabels = newLabels;
-    recChart.data.labels = newLabels.map(wrapLabel);
-    recChart.data.datasets[0].data = newData;
-    recChart.update();
-    document.getElementById('totalRec').innerText = sum;
-  } else if (type === 'msg') {
-    translations[currentLang].msgLabels = newLabels;
-    msgChart.data.labels = newLabels.map(wrapLabel);
-    msgChart.data.datasets[0].data = newData;
-    msgChart.update();
-    document.getElementById('totalMsg').innerText = sum;
-  } else if (type === 'c1') {
-    translations[currentLang].c1Labels = newLabels;
-    c1Chart.data.labels = newLabels.map(wrapLabel);
-    c1Chart.data.datasets[0].data = newData;
-    c1Chart.update();
-    document.getElementById('totalC1').innerText = sum;
-  } else if (type === 'c2') {
-    translations[currentLang].c2Labels = newLabels;
-    c2Chart.data.labels = newLabels.map(wrapLabel);
-    c2Chart.data.datasets[0].data = newData;
-    c2Chart.update();
-    document.getElementById('totalC2').innerText = sum;
-  }
-
-  // ອັບເດດກຣາບວົງມົນ (Overview Chart) ພ້ອມກັນ
-  const currentRec = parseInt(document.getElementById('totalRec').innerText) || 0;
-  const currentMsg = parseInt(document.getElementById('totalMsg').innerText) || 0;
-  const currentC1 = parseInt(document.getElementById('totalC1').innerText) || 0;
-  const currentC2 = parseInt(document.getElementById('totalC2').innerText) || 0;
+// --- ຟັງຊັນອັບເດດກຣາບວົງມົນ ເວລາພິມປ່ຽນຕົວເລກ ---
+function updateOverviewChart() {
+  const rec = parseInt(document.getElementById('totalRec').innerText) || 0;
+  const msg = parseInt(document.getElementById('totalMsg').innerText) || 0;
+  const c1 = parseInt(document.getElementById('totalC1').innerText) || 0;
+  const c2 = parseInt(document.getElementById('totalC2').innerText) || 0;
   
-  overviewChart.data.datasets[0].data = [currentRec, currentMsg, currentC1, currentC2];
+  overviewChart.data.datasets[0].data = [rec, msg, c1, c2];
   overviewChart.update();
 }
 
@@ -830,16 +639,12 @@ function wrapLabel(label) {
   if (label.length <= 20) return [label];
   const words = label.split(' ');
   if (words.length === 1) return [label.substring(0, 20) + '-', label.substring(20)];
-  
-  let lines = [];
-  let currentLine = '';
+  let lines = [], currentLine = '';
   words.forEach(word => {
     if ((currentLine + word).length > 20) {
       if (currentLine) lines.push(currentLine.trim());
       currentLine = word + ' ';
-    } else {
-      currentLine += word + ' ';
-    }
+    } else { currentLine += word + ' '; }
   });
   if (currentLine) lines.push(currentLine.trim());
   return lines;
@@ -849,23 +654,15 @@ Chart.defaults.font.family = '"Noto Sans Lao", sans-serif';
 Chart.defaults.color = '#64748B';
 Chart.register(ChartDataLabels);
 
-// --- ຂໍ້ມູນຈຳລອງໃຫ້ກົງກັບຮູບພາບຂອງທ່ານ (Mock Data) ---
+// =====================================================================
+// ⬇️ ຂໍ້ມູນສຳລັບກຣາບແທ່ງ (BAR CHARTS DATA) ⬇️
+// ທ່ານສາມາດປ່ຽນຕົວເລກໃນວົງເລັບລຸ່ມນີ້ ເພື່ອໃຫ້ກຣາບແທ່ງປ່ຽນຕາມທີ່ຕ້ອງການ
+// (ຖ້າຢາກປ່ຽນຫົວຂໍ້ ແມ່ນໃຫ້ໄປປ່ຽນຢູ່ບ່ອນ var translations ດ້ານເທິງ)
+// =====================================================================
 const recData = [15, 14, 10, 6, 4];
-const totalRec = recData.reduce((a, b) => a + b, 0); // 49
-
 const msgData = [25, 20, 15, 10, 5];
-const totalMsg = msgData.reduce((a, b) => a + b, 0); // 75
-
 const c1Data = [20, 15, 12, 10];
-const totalC1 = c1Data.reduce((a, b) => a + b, 0); // 57
-
 const c2Data = [10, 8, 6];
-const totalC2 = c2Data.reduce((a, b) => a + b, 0); // 24
-
-document.getElementById('totalRec').innerText = totalRec;
-document.getElementById('totalMsg').innerText = totalMsg;
-document.getElementById('totalC1').innerText = totalC1;
-document.getElementById('totalC2').innerText = totalC2;
 
 // 1. ກຣາບວົງມົນ (Overview)
 const overviewCtx = document.getElementById('overviewChart').getContext('2d');
@@ -879,7 +676,12 @@ const overviewChart = new Chart(overviewCtx, {
       `${translations[currentLang].c2DefaultTitle} (🟠)`
     ],
     datasets: [{
-      data: [totalRec, totalMsg, totalC1, totalC2],
+      data: [
+        parseInt(document.getElementById('totalRec').innerText) || 49, 
+        parseInt(document.getElementById('totalMsg').innerText) || 75, 
+        parseInt(document.getElementById('totalC1').innerText) || 57, 
+        parseInt(document.getElementById('totalC2').innerText) || 24
+      ],
       backgroundColor: ['#4F8AF9', '#D04DF6', '#20BFA0', '#F4A62A'],
       borderWidth: 0,
       hoverOffset: 4
@@ -986,6 +788,9 @@ function updateChartsLanguage() {
   c2Chart.data.datasets[0].label = translations[currentLang].chartYAxis;
   c2Chart.update();
 }
+
+// Initial Sync
+updateOverviewChart();
 
 </script>
 </body>
