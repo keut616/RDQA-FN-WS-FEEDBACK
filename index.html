@@ -126,7 +126,7 @@ tailwind.config = {
 
 <div class="w-full mx-auto space-y-8" id="main-container">
 
-<!-- Top Action Bar (AI Uploads, Clear Data, Save As, Lang Toggle, API Setting) -->
+<!-- Top Action Bar (AI Uploads, Clear Data, Save As, Lang Toggle) -->
 <div class="bg-surface p-4 md:p-5 rounded-2xl shadow-sm border border-slate-100 flex flex-col xl:flex-row items-center justify-between gap-5 no-print w-full max-w-5xl mx-auto">
   
   <!-- Left Group: AI Tools -->
@@ -146,13 +146,13 @@ tailwind.config = {
         <input type="file" accept="image/*,application/pdf" class="hidden" onchange="handleAITopUpload(event, 'msg')">
       </label>
 
-      <!-- AI Upload: Custom Topic 1 (ປ່ຽນເປັນແບບປຸ່ມ) -->
+      <!-- AI Upload: Custom Topic 1 -->
       <label class="cursor-pointer bg-teal-500 hover:bg-teal-600 text-white px-3 md:px-4 py-2 rounded-xl text-sm font-medium transition shadow-sm flex items-center gap-1.5 h-10">
         <span>✨</span> <span class="hidden sm:inline" data-i18n="btnAITopC1">ວິເຄາະ: ປະສົບການ ການຮຽນຮູ້</span><span class="sm:hidden" data-i18n="c1DefaultTitle">ປະສົບການ ການຮຽນຮູ້</span>
         <input type="file" accept="image/*,application/pdf" class="hidden" onchange="handleAITopUpload(event, 'c1')">
       </label>
 
-      <!-- AI Upload: Custom Topic 2 (ປ່ຽນເປັນແບບປຸ່ມ) -->
+      <!-- AI Upload: Custom Topic 2 -->
       <label class="cursor-pointer bg-amber-500 hover:bg-amber-600 text-white px-3 md:px-4 py-2 rounded-xl text-sm font-medium transition shadow-sm flex items-center gap-1.5 h-10">
         <span>✨</span> <span class="hidden sm:inline" data-i18n="btnAITopC2">ວິເຄາະ: ຄວາມປະທັບໃຈ</span><span class="sm:hidden" data-i18n="c2DefaultTitle">ຄວາມປະທັບໃຈ</span>
         <input type="file" accept="image/*,application/pdf" class="hidden" onchange="handleAITopUpload(event, 'c2')">
@@ -175,11 +175,6 @@ tailwind.config = {
     <!-- Language Toggle Button -->
     <button id="langToggleBtn" onclick="toggleLang()" class="bg-slate-50 border border-slate-200 hover:bg-slate-100 hover:border-slate-300 shadow-sm text-slate-700 px-3 md:px-4 py-2 rounded-xl text-sm font-medium transition duration-200 flex items-center gap-1.5 h-10">
       <span class="text-base">🌐</span> <span id="langBtnText">English</span>
-    </button>
-    
-    <!-- API Setting Button -->
-    <button onclick="setApiKey()" class="bg-white border border-slate-200 hover:bg-slate-50 shadow-sm text-slate-700 px-3 md:px-4 py-2 rounded-xl text-sm font-medium transition duration-200 flex items-center gap-1.5 h-10" title="ຕັ້ງຄ່າ API Key">
-      <span class="text-base">⚙️</span> <span class="hidden sm:inline" data-i18n="btnApiConfig">ຕັ້ງຄ່າ API</span>
     </button>
   </div>
 </div>
@@ -385,7 +380,6 @@ const translations = {
     btnAITopC2: "ວິເຄາະ: ຄວາມປະທັບໃຈ",
     btnClear: "ລຶບຂໍ້ມູນ",
     btnSaveAs: "ບັນທຶກເປັນ PDF",
-    btnApiConfig: "ຕັ້ງຄ່າ API",
     confirmClear: "ທ່ານຕ້ອງການລຶບຂໍ້ມູນທັງໝົດແທ້ຫຼືບໍ່? (ກຣາບຈະຖືກຣີເຊັດເປັນ 0 ທັງໝົດ)",
     recTitle: "ຄຳແນະນຳທັງໝົດ",
     msgTitle: "ຝາກຄໍາເວົ້າທັງໝົດ",
@@ -449,7 +443,6 @@ const translations = {
     btnAITopC2: "Analyze: Impressions",
     btnClear: "Clear Data",
     btnSaveAs: "Save as PDF",
-    btnApiConfig: "API Config",
     confirmClear: "Are you sure you want to clear all data? (Charts will be reset to 0)",
     recTitle: "Total Recommendations",
     msgTitle: "Total Messages",
@@ -644,7 +637,7 @@ function exportToPDF() {
 }
 
 // --- ລະບົບ Gemini AI API ---
-// ແກ້ໄຂ: ເອົາ async/await ອອກເພື່ອແກ້ໄຂ SyntaxError
+// ເອົາ async/await ອອກເພື່ອແກ້ໄຂ SyntaxError
 function fetchWithRetry(url, options, retries = 5) {
   const delays = [1000, 2000, 4000, 8000, 16000];
   return new Promise((resolve, reject) => {
@@ -672,23 +665,6 @@ function handleAITopUpload(event, type) {
   const file = event.target.files[0];
   if (!file) return;
 
-  // ກວດສອບ ແລະ ຂໍ API Key ເມື່ອໃຊ້ງານນອກ Canvas
-  let apiKey = localStorage.getItem('gemini_api_key');
-  if (!apiKey) {
-    const promptMsg = currentLang === 'lo' 
-      ? "ກະລຸນາປ້ອນລະຫັດ Google Gemini API Key ຂອງທ່ານ ເພື່ອເປີດນຳໃຊ້ລະບົບ AI:\n(ຮັບໄດ້ຟຣີທີ່ aistudio.google.com)" 
-      : "Please enter your Google Gemini API Key to enable AI analysis:\n(Get it free at aistudio.google.com)";
-    
-    apiKey = prompt(promptMsg, "");
-    if (apiKey && apiKey.trim() !== "") {
-      localStorage.setItem('gemini_api_key', apiKey.trim());
-    } else {
-      showError(currentLang === 'lo' ? "ກະລຸນາປ້ອນ API Key ເພື່ອວິເຄາະຂໍ້ມູນ." : "API Key is required.");
-      if (event.target) event.target.value = '';
-      return;
-    }
-  }
-
   document.getElementById('aiLoadingToast').classList.remove('hidden');
 
   const reader = new FileReader();
@@ -701,7 +677,7 @@ function handleAITopUpload(event, type) {
     const mimeType = dataUrl.split(';')[0].split(':')[1];
     const base64Data = dataUrl.split(',')[1];
     
-    analyzeBase64WithAI(type, mimeType, base64Data, apiKey)
+    analyzeBase64WithAI(type, mimeType, base64Data)
       .then(() => {
         document.getElementById('aiLoadingToast').classList.add('hidden');
         if (event.target) event.target.value = ''; 
@@ -714,19 +690,8 @@ function handleAITopUpload(event, type) {
   reader.readAsDataURL(file);
 }
 
-function setApiKey() {
-  const currentKey = localStorage.getItem('gemini_api_key') || '';
-  const msg = currentLang === 'lo' 
-    ? "ປ້ອນລະຫັດ API Key ຂອງທ່ານ (ສຳລັບໃຊ້ງານນອກເວັບ Canvas):\n*ຖ້າທ່ານໃຊ້ງານຢູ່ໃນເວັບ Canvas ນີ້ ໃຫ້ປະຫວ່າງໄວ້ໄດ້ເລີຍ*"
-    : "Enter your API Key (for use outside Canvas):\n*Leave empty if using inside this Canvas website*";
-  const newKey = prompt(msg, currentKey);
-  if (newKey !== null) {
-    localStorage.setItem('gemini_api_key', newKey.trim());
-    alert(currentLang === 'lo' ? "ບັນທຶກ API Key ສຳເລັດແລ້ວ!" : "API Key saved successfully!");
-  }
-}
-
-function analyzeBase64WithAI(type, mimeType, base64Data, apiKey) {
+function analyzeBase64WithAI(type, mimeType, base64Data) {
+  const apiKey = ""; // ປ່ອຍວ່າງໄວ້ ລະບົບ Canvas ຈະຈັດການໃຫ້ອັດຕະໂນມັດ
   const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
 
   let promptText = "";
@@ -802,15 +767,7 @@ function analyzeBase64WithAI(type, mimeType, base64Data, apiKey) {
     }
   }).catch(error => {
     console.error("AI Analysis Error:", error);
-    
-    let errMsg = translations[currentLang].errApi;
-    // ແຈ້ງເຕືອນໃຫ້ຊັດເຈນຂຶ້ນ ຖ້າບໍ່ມີ API Key ເວລາໃຊ້ງານນອກລະບົບ
-    if (apiKey === "" && (error.message.includes("400") || error.message.includes("403") || error.message.includes("Failed to fetch"))) {
-       errMsg = currentLang === 'lo' 
-         ? "ເກີດຂໍ້ຜິດພາດ: ຖ້າໃຊ້ງານນອກເວັບໄຊນີ້ ທ່ານຕ້ອງໃສ່ API Key ກ່ອນ ໂດຍກົດທີ່ປຸ່ມ ⚙️ ຕັ້ງຄ່າ API." 
-         : "Error: If using outside this site, you must set your API Key via the ⚙️ API Config button.";
-    }
-    showError(errMsg);
+    showError(translations[currentLang].errApi);
     throw error;
   });
 }
